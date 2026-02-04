@@ -11,54 +11,71 @@
     <style>
         :root {
             --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --danger: #ef4444;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-700: #374151;
-            --white: #ffffff;
+            --text-dark: #111827;
+            --text-gray: #4b5563;
         }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: var(--gray-100);
+            background-color: #f3f4f6;
             margin: 0;
             padding: 20px;
-            color: var(--gray-700);
         }
 
-        /* Main Container */
-        .container {
-            max-width: 800px;
+        /* --- UI ONLY (Web View) --- */
+        .controls-area {
+            max-width: 750px;
+            margin: 0 auto 20px auto;
+            text-align: right;
+        }
+
+        /* --- DOCUMENT CONTAINER (The A4 Sheet) --- */
+        .a4-container {
+            max-width: 794px; /* A4 width in pixels approx */
+            min-height: 1123px; /* A4 height */
             margin: 0 auto;
-            background: var(--white);
-            padding: 30px;
-            border-radius: 12px;
+            background: #ffffff;
+            padding: 40px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        h2, h3 {
-            color: #111827;
-            margin-top: 0;
-        }
-
-        h3 {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            border-bottom: 2px solid var(--gray-100);
+        /* --- FORM STYLING --- */
+        h2 {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            border-bottom: 2px solid #000;
             padding-bottom: 10px;
-            margin-top: 25px;
         }
 
-        /* Form Grids */
-        .form-grid {
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .section-title {
+            background: #f0f0f0;
+            padding: 5px 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            text-transform: uppercase;
+        }
+
+        .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 25px; /* Space between columns */
         }
 
         .form-group {
@@ -67,147 +84,132 @@
 
         label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        input, select, textarea {
+        /* THE "LINE" INPUT STYLE */
+        input, textarea, select {
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--gray-200);
-            border-radius: 6px;
+            border: none;
+            border-bottom: 1px solid #999; /* The Line */
+            border-radius: 0;
+            padding: 5px 0;
             font-size: 1rem;
+            font-weight: 500;
+            color: #000;
+            background: transparent;
+            outline: none;
             transition: border-color 0.2s;
         }
 
         input:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
+            border-bottom: 2px solid var(--primary);
         }
 
-        input[readonly] {
-            background-color: var(--gray-100);
-            color: #6b7280;
-            cursor: not-allowed;
+        /* --- EXPENSES TABLE --- */
+        .expense-header {
+            display: flex;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-bottom: 2px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
         }
-
-        /* Expenses Section */
+        
         .expense-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 8px;
             align-items: center;
         }
 
-        .expense-row input {
-            margin-bottom: 0;
+        /* --- SIGNATURE AREA --- */
+        .signature-section {
+            margin-top: 30px;
+            page-break-inside: avoid; /* Prevent splitting in PDF */
         }
 
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-outline { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
-        .btn-success { background: #10b981; color: white; width: 100%; margin-top: 20px; font-size: 1.1rem; padding: 15px; }
-
-        /* Signature Canvas */
-        .signature-wrapper {
-            border: 2px dashed var(--gray-200);
-            border-radius: 8px;
+        .signature-box {
+            border: 1px solid #ccc;
+            height: 120px;
+            width: 100%;
+            border-radius: 4px;
             position: relative;
             background: #fff;
-            touch-action: none; /* Important for mobile */
         }
 
         canvas {
-            display: block;
             width: 100%;
-            height: 200px;
+            height: 100%;
+            display: block;
             cursor: crosshair;
         }
 
-        .signature-controls {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 10px;
+        /* --- BUTTONS --- */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: #ef4444; color: white; padding: 4px 10px; font-size: 0.8rem; }
+        .btn-add { background: #fff; border: 1px dashed #999; width: 100%; margin-top: 5px; color: #555; }
+        .btn-download { background: #10b981; color: white; padding: 12px 24px; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        /* --- HELPER TO HIDE ELEMENTS IN PDF --- */
+        .no-print {
+            /* This class will be hidden by the data-html2canvas-ignore attribute logic */
         }
 
-        /* Hide specific elements during PDF generation logic if needed */
-        .hide-in-pdf {
-            display: none;
-        }
-
-        /* Mobile Responsiveness */
+        /* Mobile Adjustments */
         @media (max-width: 600px) {
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .expense-row {
-                flex-wrap: wrap;
-                border-bottom: 1px solid var(--gray-100);
-                padding-bottom: 10px;
-            }
-            
-            .expense-row input {
-                width: 100%;
-            }
-            
-            .expense-row button {
-                width: 100%;
-            }
-            
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 15px;
-            }
+            body { padding: 10px; }
+            .a4-container { padding: 20px; height: auto; }
+            .grid-2 { grid-template-columns: 1fr; gap: 10px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="printable-area">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2>Journey Details Form</h2>
-            <div style="text-align: right; font-size: 0.8rem; color: #666;">Generated via Web App</div>
-        </div>
+    <div class="controls-area">
+        <button class="btn btn-download" onclick="generatePDF()">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
+    </div>
 
-        <h3><i class="fas fa-route"></i> Journey Info</h3>
-        <div class="form-group">
-            <label>Booking ID</label>
-            <input type="text" id="bookingId" readonly>
-        </div>
+    <div class="a4-container" id="printable-form">
         
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Start KM Reading</label>
-                <input type="number" id="startKm" placeholder="e.g., 15000">
-            </div>
-            <div class="form-group">
-                <label>End KM Reading</label>
-                <input type="number" id="endKm" placeholder="e.g., 15250">
+        <h2>Journey Log Sheet</h2>
+        
+        <div class="header-meta">
+            <div><strong>Date:</strong> <span id="currentDate"></span></div>
+            <div style="text-align: right;">
+                <label style="display:inline; margin-right:5px;">Booking ID:</label>
+                <input type="text" id="bookingId" readonly style="width: 180px; display:inline-block; text-align:right; font-weight:bold;">
             </div>
         </div>
 
-        <div class="form-grid">
+        <div class="section-title">Customer Details</div>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Customer Name</label>
+                <input type="text" id="custName" placeholder="Enter name">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="custPhone" placeholder="Enter phone">
+            </div>
+        </div>
+
+        <div class="section-title">Journey Details</div>
+        <div class="grid-2">
             <div class="form-group">
                 <label>Start Date & Time</label>
                 <input type="datetime-local" id="startTime">
@@ -217,138 +219,133 @@
                 <input type="datetime-local" id="endTime">
             </div>
         </div>
-
-        <h3><i class="fas fa-user"></i> Customer Info</h3>
-        <div class="form-grid">
+        <div class="grid-2" style="margin-top: 15px;">
             <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" id="custName" placeholder="Full Name">
+                <label>Start KM Reading</label>
+                <input type="number" id="startKm" placeholder="0">
             </div>
             <div class="form-group">
-                <label>Customer Phone</label>
-                <input type="tel" id="custPhone" placeholder="+91 XXXXX XXXXX">
+                <label>End KM Reading</label>
+                <input type="number" id="endKm" placeholder="0">
             </div>
         </div>
 
-        <h3><i class="fas fa-wallet"></i> Expenses</h3>
+        <div class="section-title">Trip Expenses</div>
+        <div class="expense-header">
+            <div style="flex: 2;">Description</div>
+            <div style="flex: 1;">Amount (₹)</div>
+            <div style="width: 40px;" class="no-print"></div>
+        </div>
+        
         <div id="expense-container">
             </div>
-        
-        <button class="btn btn-outline" id="addExpenseBtn" data-html2canvas-ignore="true">
-            <i class="fas fa-plus"></i> Add Expense
+
+        <button class="btn btn-add" onclick="addExpenseRow()" data-html2canvas-ignore="true">
+            <i class="fas fa-plus"></i> Add Another Expense
         </button>
-        
-        <h3><i class="fas fa-comment-alt"></i> Remarks / Notes</h3>
+
+        <div class="section-title">Remarks</div>
         <div class="form-group">
-            <textarea id="remarks" rows="3" placeholder="Enter any additional notes about the trip, vehicle condition, etc."></textarea>
+            <textarea id="remarks" rows="2" placeholder="Notes regarding toll, parking, or vehicle condition..."></textarea>
         </div>
 
-        <h3><i class="fas fa-pen-nib"></i> Digital Signature</h3>
-        <div class="signature-wrapper">
-            <canvas id="sig-canvas"></canvas>
-        </div>
-        
-        <div class="signature-controls" data-html2canvas-ignore="true">
-            <button class="btn btn-danger" id="clear-sig">Clear</button>
-        </div>
-        
-        <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
-            By signing above, I confirm the journey details are accurate.
+        <div class="signature-section">
+            <label>Driver / Customer Signature</label>
+            <div class="signature-box">
+                <canvas id="sig-canvas"></canvas>
+            </div>
+            <div style="text-align: right; margin-top: 5px;" data-html2canvas-ignore="true">
+                <button class="btn btn-danger" id="clear-sig">Clear Signature</button>
+            </div>
         </div>
 
-    </div>
+        <div style="margin-top: 30px; text-align: center; font-size: 0.7rem; color: #999; border-top: 1px solid #ddd; padding-top: 10px;">
+            This is a computer-generated document.
+        </div>
 
-    <div style="max-width: 800px; margin: 20px auto;">
-        <button class="btn btn-success" onclick="generatePDF()">
-            <i class="fas fa-file-pdf"></i> Download PDF
-        </button>
     </div>
 
     <script>
-        // 1. Generate Booking ID on Load
+        // --- 1. Initialization ---
         window.onload = function() {
-            const randomPart = Math.floor(100000 + Math.random() * 900000); // 6 digit random
-            const suffix = Math.random().toString(36).substring(2, 8).toUpperCase(); // Random alphanumeric
-            const bookingId = `AST-${randomPart}-${suffix}`;
+            // Set Date
+            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('currentDate').textContent = today;
+
+            // Generate ID
+            const randomPart = Math.floor(10000 + Math.random() * 90000);
+            const bookingId = `AST-${randomPart}`;
             document.getElementById('bookingId').value = bookingId;
-            
-            // Add initial expense row
+
+            // Add first expense row
             addExpenseRow();
+
+            // Setup Canvas
+            setupCanvas();
         };
 
-        // 2. Expense Logic
-        const expenseContainer = document.getElementById('expense-container');
-        const addExpenseBtn = document.getElementById('addExpenseBtn');
-
+        // --- 2. Expense Logic ---
         function addExpenseRow() {
+            const container = document.getElementById('expense-container');
             const row = document.createElement('div');
             row.className = 'expense-row';
             row.innerHTML = `
-                <input type="text" placeholder="Expense Type (e.g. Toll, Fuel)" style="flex: 2;">
-                <input type="number" placeholder="₹ Amount" style="flex: 1;">
-                <button class="btn btn-danger" onclick="removeRow(this)" data-html2canvas-ignore="true">
-                    <i class="fas fa-trash"></i>
+                <input type="text" placeholder="e.g. Fuel / Toll" style="flex: 2;">
+                <input type="number" placeholder="0.00" style="flex: 1;">
+                <button class="btn btn-danger no-print" onclick="this.parentElement.remove()" data-html2canvas-ignore="true">
+                    <i class="fas fa-times"></i>
                 </button>
             `;
-            expenseContainer.appendChild(row);
+            container.appendChild(row);
         }
 
-        function removeRow(btn) {
-            btn.parentElement.remove();
-        }
+        // --- 3. Robust Signature Logic (Mobile + Desktop) ---
+        let canvas, ctx, writingMode = false;
 
-        addExpenseBtn.addEventListener('click', addExpenseRow);
+        function setupCanvas() {
+            canvas = document.getElementById("sig-canvas");
+            ctx = canvas.getContext("2d");
+            
+            // Set actual canvas size to match display size for sharpness
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
 
-        // 3. Signature Canvas Logic
-        const canvas = document.getElementById("sig-canvas");
-        const ctx = canvas.getContext("2d");
-        let writingMode = false;
-
-        // Resize canvas to fit parent width
-        function resizeCanvas() {
-            const parentWidth = canvas.parentElement.offsetWidth;
-            canvas.width = parentWidth;
-            canvas.height = 200;
             ctx.lineWidth = 2;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
             ctx.strokeStyle = '#000000';
+
+            // Events
+            ['mousedown', 'touchstart'].forEach(evt => 
+                canvas.addEventListener(evt, startDrawing, {passive: false}));
+            ['mouseup', 'touchend'].forEach(evt => 
+                canvas.addEventListener(evt, stopDrawing, {passive: false}));
+            ['mousemove', 'touchmove'].forEach(evt => 
+                canvas.addEventListener(evt, draw, {passive: false}));
         }
-        
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
 
-        // Mouse Events
-        canvas.addEventListener('mousedown', handlePointerDown, {passive: false});
-        canvas.addEventListener('mouseup', handlePointerUp, {passive: false});
-        canvas.addEventListener('mousemove', handlePointerMove, {passive: false});
-
-        // Touch Events (Mobile)
-        canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
-        canvas.addEventListener('touchend', handlePointerUp, {passive: false});
-        canvas.addEventListener('touchmove', handlePointerMove, {passive: false});
-
-        function handlePointerDown(e) {
+        function startDrawing(e) {
             writingMode = true;
             ctx.beginPath();
-            const [x, y] = getCursorPosition(e);
+            const [x, y] = getPos(e);
             ctx.moveTo(x, y);
-            e.preventDefault(); // Stop scrolling on mobile
+            e.preventDefault();
         }
 
-        function handlePointerUp() {
+        function stopDrawing(e) {
             writingMode = false;
         }
 
-        function handlePointerMove(e) {
+        function draw(e) {
             if (!writingMode) return;
-            const [x, y] = getCursorPosition(e);
+            const [x, y] = getPos(e);
             ctx.lineTo(x, y);
             ctx.stroke();
             e.preventDefault();
         }
 
-        function getCursorPosition(e) {
+        function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -359,26 +356,27 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
-        // 4. PDF Generation Logic
+        // --- 4. PDF Generation (Optimized for Single Page) ---
         function generatePDF() {
-            const element = document.getElementById('printable-area');
-            const bookingId = document.getElementById('bookingId').value;
-
-            // Optional: Transform Inputs to Divs specifically for PDF if needed for styling, 
-            // but html2pdf handles input values nicely by default.
+            const element = document.getElementById('printable-form');
+            const id = document.getElementById('bookingId').value;
             
+            // Temporarily tighten margins specifically for the print action
+            element.style.padding = "20px"; 
+
             const opt = {
-                margin:       [10, 10, 10, 10],
-                filename:     `Booking_${bookingId}.pdf`,
+                margin:       [5, 5, 5, 5], // Very slim margins to fit content
+                filename:     `Booking_${id}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: 'avoid-all' } // Tries to keep everything on one page
             };
 
-            // Before PDF: We rely on data-html2canvas-ignore attributes in HTML 
-            // to hide "Add" and "Delete" buttons automatically.
-
-            html2pdf().set(opt).from(element).save();
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore padding after download
+                element.style.padding = "40px";
+            });
         }
     </script>
 </body>

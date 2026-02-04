@@ -18,7 +18,7 @@
             --text-light: #6b7280;
             --border-color: #e5e7eb;
             --bg-color: #f3f4f6;
-            --paper-width: 794px;     /* A4 Width in Pixels (approx) */
+            --paper-width: 794px;     /* A4 Width in Pixels */
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -37,7 +37,8 @@
             width: 100%;
             max-width: var(--paper-width);
             background: #ffffff;
-            min-height: 100vh;
+            /* CRITICAL FIX: Removed min-height: 100vh to prevent PDF empty space issues */
+            min-height: auto; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
         }
@@ -85,7 +86,7 @@
 
         /* Section Styling */
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Tightened from 20px */
         }
 
         .section-header {
@@ -93,7 +94,7 @@
             align-items: center;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: var(--primary);
             font-weight: 700;
             font-size: 0.95rem;
@@ -141,7 +142,6 @@
             border-bottom-color: var(--primary);
         }
         
-        /* Make inputs look like text in PDF */
         input::placeholder { color: #ccc; font-weight: 400; }
 
         /* --- EXPENSES TABLE --- */
@@ -194,10 +194,14 @@
             gap: 8px;
         }
 
-        /* --- SIGNATURE --- */
+        /* --- SIGNATURE (Smart Break Logic) --- */
         .signature-area {
-            margin-top: 30px;
-            page-break-inside: avoid;
+            margin-top: 20px; /* Reduced to help fit on Page 1 */
+            
+            /* These lines force the signature to stay together as one block */
+            page-break-inside: avoid; 
+            break-inside: avoid;
+            -webkit-column-break-inside: avoid;
         }
 
         .canvas-wrapper {
@@ -257,12 +261,9 @@
         }
         .btn-download:active { transform: translateX(-50%) scale(0.98); }
 
-        /* --- UTILS --- */
-        .hidden-in-pdf { } /* Marker class */
-
         /* Mobile Responsive */
         @media (max-width: 600px) {
-            .page-container { width: 100%; min-height: auto; box-shadow: none; }
+            .page-container { width: 100%; box-shadow: none; }
             .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
             .doc-meta { text-align: left; }
             .doc-body { padding: 20px; }
@@ -328,7 +329,8 @@
                 <div class="expense-table-header">
                     <div style="flex: 2;">Description</div>
                     <div style="flex: 1;">Amount (₹)</div>
-                    <div style="width: 30px;"></div> </div>
+                    <div style="width: 30px;"></div>
+                </div>
 
                 <div id="expense-container"></div>
 
@@ -354,7 +356,7 @@
 
         </div>
         
-        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 20px;">
+        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 10px;">
             System Generated Invoice • Valid without physical seal
         </div>
 
@@ -373,7 +375,7 @@
             const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
             document.getElementById('displayDate').textContent = today;
             
-            // Generate Professional ID (AST-XXXX)
+            // Generate ID
             const randomId = Math.floor(1000 + Math.random() * 9000);
             document.getElementById('bookingId').textContent = `AST-${randomId}`;
 
@@ -397,17 +399,16 @@
             container.appendChild(row);
         }
 
-        // --- 3. SIGNATURE ENGINE (Mobile Optimized) ---
+        // --- 3. SIGNATURE ENGINE ---
         let canvas, ctx, writingMode = false;
 
         function setupCanvas() {
             canvas = document.getElementById("sig-canvas");
             ctx = canvas.getContext("2d");
             
-            // Resize Observer to handle responsiveness perfectly
+            // Observer guarantees correct size
             new ResizeObserver(() => {
                 const rect = canvas.getBoundingClientRect();
-                // Only resize if dimensions actually changed to avoid clearing
                 if (canvas.width !== rect.width || canvas.height !== rect.height) {
                     canvas.width = rect.width;
                     canvas.height = rect.height;
@@ -418,7 +419,6 @@
                 }
             }).observe(canvas.parentElement);
 
-            // Touch & Mouse Events
             ['mousedown', 'touchstart'].forEach(e => 
                 canvas.addEventListener(e, startDraw, {passive: false}));
             ['mouseup', 'touchend'].forEach(e => 
@@ -432,12 +432,10 @@
             ctx.beginPath();
             const pos = getPos(e);
             ctx.moveTo(pos.x, pos.y);
-            e.preventDefault(); // Stop page scroll
+            e.preventDefault();
         }
 
-        function endDraw() {
-            writingMode = false;
-        }
+        function endDraw() { writingMode = false; }
 
         function draw(e) {
             if (!writingMode) return;
@@ -451,10 +449,7 @@
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return {
-                x: clientX - rect.left,
-                y: clientY - rect.top
-            };
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         document.getElementById('clear-sig').addEventListener('click', () => {
@@ -466,32 +461,24 @@
             const element = document.getElementById('printable-area');
             const bookingId = document.getElementById('bookingId').textContent;
 
-            // Configuration to fix white space and ensure single page
             const opt = {
-                margin:       0, // No margin here, we use internal CSS padding
+                margin:       0,
                 filename:     `LogSheet_${bookingId}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true,
-                    scrollY: 0
-                },
-                jsPDF:        { 
-                    unit: 'pt', 
-                    format: 'a4', 
-                    orientation: 'portrait' 
-                }
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                // INTELLIGENT PAGE BREAKING
+                pagebreak:    { mode: 'css' }, 
+                jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' }
             };
 
-            // Temporarily lock width for perfect A4 rendering
+            // Lock width for consistency
             const originalStyle = element.style.cssText;
-            element.style.width = "794px"; // Exact A4 width in pixels at 96dpi
-            element.style.maxWidth = "none";
+            element.style.width = "794px";
+            element.style.height = "auto"; // Ensure auto height for accurate cutting
             element.style.margin = "0 auto";
             element.style.boxShadow = "none";
 
             html2pdf().set(opt).from(element).save().then(() => {
-                // Restore original mobile-friendly styles
                 element.style.cssText = originalStyle;
             });
         }

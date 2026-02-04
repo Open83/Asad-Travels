@@ -2,332 +2,498 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Journey Details Form</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Professional Journey Log</title>
+    
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
-            --primary: #2563eb;
-            --text-dark: #111827;
-            --text-gray: #4b5563;
+            --primary: #2563eb;       /* Corporate Blue */
+            --primary-dark: #1e40af;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --border-color: #e5e7eb;
+            --bg-color: #f3f4f6;
+            --paper-width: 794px;     /* A4 Width in Pixels (approx) */
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: #f3f4f6;
+            background-color: var(--bg-color);
             margin: 0;
-            padding: 10px;
+            padding: 0;
+            padding-bottom: 80px; /* Space for fixed download button */
+            display: flex;
+            justify-content: center;
         }
 
-        /* --- UI Controls (Hide in PDF) --- */
-        .controls-area {
-            max-width: 794px;
-            margin: 0 auto 15px auto;
-            text-align: right;
-        }
-
-        /* --- DOCUMENT CONTAINER (A4 Tight Layout) --- */
-        .a4-container {
-            max-width: 794px;
+        /* --- THE A4 PAPER CONTAINER --- */
+        .page-container {
+            width: 100%;
+            max-width: var(--paper-width);
             background: #ffffff;
-            padding: 25px 35px; /* Tighter padding */
-            margin: 0 auto;
+            min-height: 100vh;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
-        /* --- FORM STYLING --- */
-        h2 {
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 0 0 10px 0; /* Removed top margin */
-            font-size: 1.4rem;
-            color: var(--text-dark);
-            border-bottom: 2px solid #000;
-            padding-bottom: 5px;
-        }
-
-        .header-meta {
+        /* --- HEADER SECTION --- */
+        .doc-header {
+            background: var(--primary);
+            color: white;
+            padding: 25px 30px;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 15px; /* Reduced from 20px */
-            font-size: 0.85rem;
-            color: var(--text-gray);
+            align-items: center;
         }
 
-        .section-title {
-            background: #f0f0f0;
-            padding: 4px 8px; /* Compact padding */
+        .doc-title {
+            font-size: 1.4rem;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .doc-meta {
+            text-align: right;
             font-size: 0.9rem;
-            margin-top: 15px; /* Reduced space */
-            margin-bottom: 10px;
-            border-left: 4px solid var(--primary);
+            opacity: 0.9;
+        }
+
+        .meta-row {
+            margin-bottom: 4px;
+        }
+        
+        .id-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* --- CONTENT BODY --- */
+        .doc-body {
+            padding: 25px 30px;
+        }
+
+        /* Section Styling */
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.95rem;
             text-transform: uppercase;
         }
+        
+        .section-header i { margin-right: 8px; }
 
+        /* Grid Layouts */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
-        .form-group {
-            margin-bottom: 8px; /* Reduced from 15px */
+        /* Input Styling - "Invisible" mode for PDF look */
+        .input-group {
+            margin-bottom: 5px;
         }
 
         label {
             display: block;
-            font-size: 0.75rem; /* Smaller labels */
-            color: #666;
-            margin-bottom: 2px;
-            font-weight: 600;
+            font-size: 0.7rem;
+            color: var(--text-light);
             text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 2px;
         }
 
-        /* CLEAN INPUT STYLE */
-        input, textarea, select {
+        input, select, textarea {
             width: 100%;
-            border: none;
-            border-bottom: 1px solid #999;
-            border-radius: 0;
-            padding: 4px 0;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #000;
+            border: 1px solid transparent; /* Hidden by default */
+            border-bottom: 1px solid #d1d5db; /* Only bottom line */
             background: transparent;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 6px 0;
+            border-radius: 0;
             outline: none;
+            transition: border-color 0.3s;
         }
 
-        /* --- EXPENSES TABLE --- */
-        .expense-header {
-            display: flex;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-bottom: 2px solid #000;
-            padding-bottom: 2px;
-            margin-bottom: 8px;
+        input:focus, textarea:focus {
+            border-bottom-color: var(--primary);
         }
         
+        /* Make inputs look like text in PDF */
+        input::placeholder { color: #ccc; font-weight: 400; }
+
+        /* --- EXPENSES TABLE --- */
+        .expense-table-header {
+            display: flex;
+            background: #f9fafb;
+            padding: 8px 5px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
         .expense-row {
             display: flex;
             gap: 15px;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             align-items: center;
         }
 
-        /* --- SIGNATURE AREA (Compact) --- */
-        .signature-section {
-            margin-top: 20px;
+        .btn-icon {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            border: 1px dashed #d1d5db;
+            background: #f9fafb;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* --- SIGNATURE --- */
+        .signature-area {
+            margin-top: 30px;
             page-break-inside: avoid;
         }
 
-        .signature-box {
-            border: 1px solid #ccc;
-            height: 100px; /* Reduced height to fit page */
-            width: 100%;
-            border-radius: 4px;
+        .canvas-wrapper {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
             background: #fff;
+            height: 110px;
+            position: relative;
+            overflow: hidden;
         }
 
         canvas {
+            display: block;
             width: 100%;
             height: 100%;
-            display: block;
+            cursor: crosshair;
         }
 
-        /* --- BUTTONS --- */
-        .btn { padding: 8px 16px; border-radius: 4px; border: none; cursor: pointer; font-weight: 600; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-danger { background: #ef4444; color: white; padding: 4px 8px; font-size: 0.8rem; }
-        .btn-add { background: #fff; border: 1px dashed #999; width: 100%; margin-top: 5px; color: #555; padding: 6px; }
-        .btn-download { background: #10b981; color: white; padding: 12px 24px; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .clear-sig-btn {
+            font-size: 0.75rem;
+            color: #ef4444;
+            background: none;
+            border: none;
+            text-decoration: underline;
+            cursor: pointer;
+            float: right;
+            margin-top: 5px;
+        }
 
-        /* Mobile */
+        /* --- FLOATING DOWNLOAD BUTTON --- */
+        .floating-actions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            z-index: 999;
+        }
+
+        .btn-download {
+            width: 100%;
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-download:active { transform: translateX(-50%) scale(0.98); }
+
+        /* --- UTILS --- */
+        .hidden-in-pdf { } /* Marker class */
+
+        /* Mobile Responsive */
         @media (max-width: 600px) {
-            .a4-container { padding: 15px; }
-            .grid-2 { grid-template-columns: 1fr; gap: 10px; }
+            .page-container { width: 100%; min-height: auto; box-shadow: none; }
+            .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
+            .doc-meta { text-align: left; }
+            .doc-body { padding: 20px; }
+            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="controls-area">
-        <button class="btn btn-download" onclick="generatePDF()">
-            <i class="fas fa-file-pdf"></i> Download PDF
-        </button>
+    <div class="page-container" id="printable-area">
+        
+        <div class="doc-header">
+            <h1 class="doc-title">Journey Log Sheet</h1>
+            <div class="doc-meta">
+                <div class="meta-row">Date: <span id="displayDate" style="font-weight:600"></span></div>
+                <div class="meta-row">ID: <span id="bookingId" class="id-badge">...</span></div>
+            </div>
+        </div>
+
+        <div class="doc-body">
+            
+            <div class="section">
+                <div class="section-header"><i class="fas fa-user"></i> Customer Details</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Customer Name</label>
+                        <input type="text" id="custName" placeholder="Enter full name">
+                    </div>
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="Enter phone number">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><i class="fas fa-route"></i> Journey Details</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Start Time</label>
+                        <input type="datetime-local" id="startTime">
+                    </div>
+                    <div class="input-group">
+                        <label>End Time</label>
+                        <input type="datetime-local" id="endTime">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div class="input-group">
+                        <label>Start KM Reading</label>
+                        <input type="number" id="startKm" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label>End KM Reading</label>
+                        <input type="number" id="endKm" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><i class="fas fa-receipt"></i> Expenses</div>
+                
+                <div class="expense-table-header">
+                    <div style="flex: 2;">Description</div>
+                    <div style="flex: 1;">Amount (₹)</div>
+                    <div style="width: 30px;"></div> </div>
+
+                <div id="expense-container"></div>
+
+                <button class="btn-add hidden-in-pdf" onclick="addExpenseRow()" data-html2canvas-ignore="true">
+                    <i class="fas fa-plus-circle"></i> Add New Expense
+                </button>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
+                <textarea id="remarks" rows="2" placeholder="Any additional notes about the trip..."></textarea>
+            </div>
+
+            <div class="signature-area">
+                <label style="margin-bottom: 8px; display:block;">Driver / Customer Signature</label>
+                <div class="canvas-wrapper">
+                    <canvas id="sig-canvas"></canvas>
+                </div>
+                <button class="clear-sig-btn hidden-in-pdf" id="clear-sig" data-html2canvas-ignore="true">
+                    Clear Signature
+                </button>
+            </div>
+
+        </div>
+        
+        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 20px;">
+            System Generated Invoice • Valid without physical seal
+        </div>
+
     </div>
 
-    <div class="a4-container" id="printable-form">
-        
-        <h2>Journey Log Sheet</h2>
-        
-        <div class="header-meta">
-            <div><strong>Date:</strong> <span id="currentDate"></span></div>
-            <div style="text-align: right;">
-                <label style="display:inline; margin-right:5px;">ID:</label>
-                <input type="text" id="bookingId" readonly style="width: 150px; display:inline-block; text-align:right; font-weight:bold; border:none;">
-            </div>
-        </div>
-
-        <div class="section-title" style="margin-top: 5px;">Customer Details</div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" id="custName" placeholder="Name">
-            </div>
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" id="custPhone" placeholder="Phone">
-            </div>
-        </div>
-
-        <div class="section-title">Journey Details</div>
-        <div class="grid-2">
-            <div class="form-group">
-                <label>Start Time</label>
-                <input type="datetime-local" id="startTime">
-            </div>
-            <div class="form-group">
-                <label>End Time</label>
-                <input type="datetime-local" id="endTime">
-            </div>
-        </div>
-        <div class="grid-2" style="margin-top: 8px;">
-            <div class="form-group">
-                <label>Start KM</label>
-                <input type="number" id="startKm" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>End KM</label>
-                <input type="number" id="endKm" placeholder="0">
-            </div>
-        </div>
-
-        <div class="section-title">Expenses</div>
-        <div class="expense-header">
-            <div style="flex: 2;">Description</div>
-            <div style="flex: 1;">Amount (₹)</div>
-            <div style="width: 30px;"></div>
-        </div>
-        
-        <div id="expense-container"></div>
-
-        <button class="btn btn-add" onclick="addExpenseRow()" data-html2canvas-ignore="true">
-            <i class="fas fa-plus"></i> Add Expense
+    <div class="floating-actions">
+        <button class="btn-download" onclick="generatePDF()">
+            <i class="fas fa-file-pdf"></i> Download Official PDF
         </button>
-
-        <div class="section-title">Remarks</div>
-        <div class="form-group">
-            <textarea id="remarks" rows="2" placeholder="Notes..."></textarea>
-        </div>
-
-        <div class="signature-section">
-            <label>Signature</label>
-            <div class="signature-box">
-                <canvas id="sig-canvas"></canvas>
-            </div>
-            <div style="text-align: right; margin-top: 5px;" data-html2canvas-ignore="true">
-                <button class="btn btn-danger" id="clear-sig">Clear</button>
-            </div>
-        </div>
-
-        <div style="margin-top: 20px; text-align: center; font-size: 0.7rem; color: #aaa;">
-            Generated via Web App
-        </div>
-
     </div>
 
     <script>
+        // --- 1. SETUP & INIT ---
         window.onload = function() {
+            // Set Date
             const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('currentDate').textContent = today;
+            document.getElementById('displayDate').textContent = today;
             
-            const randomPart = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('bookingId').value = `AST-${randomPart}`;
+            // Generate Professional ID (AST-XXXX)
+            const randomId = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('bookingId').textContent = `AST-${randomId}`;
 
-            addExpenseRow(); // Add first row
+            // Initialize Form
+            addExpenseRow();
             setupCanvas();
         };
 
+        // --- 2. EXPENSE LOGIC ---
         function addExpenseRow() {
             const container = document.getElementById('expense-container');
             const row = document.createElement('div');
             row.className = 'expense-row';
             row.innerHTML = `
-                <input type="text" placeholder="Detail" style="flex: 2;">
-                <input type="number" placeholder="0" style="flex: 1;">
-                <button class="btn btn-danger" onclick="this.parentElement.remove()" data-html2canvas-ignore="true" style="width:30px;">
+                <input type="text" placeholder="e.g. Fuel, Toll, Parking" style="flex: 2;">
+                <input type="number" placeholder="0.00" style="flex: 1;">
+                <button class="btn-icon hidden-in-pdf" onclick="this.parentElement.remove()" data-html2canvas-ignore="true">
                     <i class="fas fa-times"></i>
                 </button>
             `;
             container.appendChild(row);
         }
 
-        // --- Signature Logic ---
+        // --- 3. SIGNATURE ENGINE (Mobile Optimized) ---
         let canvas, ctx, writingMode = false;
 
         function setupCanvas() {
             canvas = document.getElementById("sig-canvas");
             ctx = canvas.getContext("2d");
             
-            // Wait for layout to settle before sizing
-            setTimeout(() => {
+            // Resize Observer to handle responsiveness perfectly
+            new ResizeObserver(() => {
                 const rect = canvas.getBoundingClientRect();
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-                ctx.lineWidth = 2;
-                ctx.strokeStyle = '#000';
-            }, 100);
+                // Only resize if dimensions actually changed to avoid clearing
+                if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                    ctx.lineWidth = 2;
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#000';
+                }
+            }).observe(canvas.parentElement);
 
-            const events = [
-                ['mousedown', 'mouseup', 'mousemove'], 
-                ['touchstart', 'touchend', 'touchmove']
-            ];
-
-            events[0].forEach(e => canvas.addEventListener(e, handleMouse, {passive: false}));
-            events[1].forEach(e => canvas.addEventListener(e, handleTouch, {passive: false}));
+            // Touch & Mouse Events
+            ['mousedown', 'touchstart'].forEach(e => 
+                canvas.addEventListener(e, startDraw, {passive: false}));
+            ['mouseup', 'touchend'].forEach(e => 
+                canvas.addEventListener(e, endDraw, {passive: false}));
+            ['mousemove', 'touchmove'].forEach(e => 
+                canvas.addEventListener(e, draw, {passive: false}));
         }
 
-        function handleMouse(e) {
-            if(e.type === 'mousedown') { writingMode = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); }
-            else if(e.type === 'mouseup') { writingMode = false; }
-            else if(writingMode) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); }
+        function startDraw(e) {
+            writingMode = true;
+            ctx.beginPath();
+            const pos = getPos(e);
+            ctx.moveTo(pos.x, pos.y);
+            e.preventDefault(); // Stop page scroll
         }
 
-        function handleTouch(e) {
+        function endDraw() {
+            writingMode = false;
+        }
+
+        function draw(e) {
+            if (!writingMode) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
             e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const x = e.touches[0].clientX - rect.left;
-            const y = e.touches[0].clientY - rect.top;
+        }
 
-            if(e.type === 'touchstart') { writingMode = true; ctx.beginPath(); ctx.moveTo(x, y); }
-            else if(e.type === 'touchend') { writingMode = false; }
-            else if(writingMode) { ctx.lineTo(x, y); ctx.stroke(); }
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
         }
 
         document.getElementById('clear-sig').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
-        // --- PDF Logic ---
+        // --- 4. PDF GENERATION (Optimized) ---
         function generatePDF() {
-            const element = document.getElementById('printable-form');
-            const id = document.getElementById('bookingId').value;
+            const element = document.getElementById('printable-area');
+            const bookingId = document.getElementById('bookingId').textContent;
 
+            // Configuration to fix white space and ensure single page
             const opt = {
-                margin:       [0, 0, 0, 0], // No outer margins
-                filename:     `Booking_${id}.pdf`,
+                margin:       0, // No margin here, we use internal CSS padding
+                filename:     `LogSheet_${bookingId}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true,
+                    scrollY: 0
+                },
+                jsPDF:        { 
+                    unit: 'pt', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
             };
 
-            html2pdf().set(opt).from(element).save();
+            // Temporarily lock width for perfect A4 rendering
+            const originalStyle = element.style.cssText;
+            element.style.width = "794px"; // Exact A4 width in pixels at 96dpi
+            element.style.maxWidth = "none";
+            element.style.margin = "0 auto";
+            element.style.boxShadow = "none";
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore original mobile-friendly styles
+                element.style.cssText = originalStyle;
+            });
         }
     </script>
 </body>

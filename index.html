@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey Details Form</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-700: #374151;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--gray-100);
+            margin: 0;
+            padding: 20px;
+            color: var(--gray-700);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h2, h3 {
+            color: #111827;
+            margin-top: 0;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--gray-100);
+            padding-bottom: 10px;
+            margin-top: 25px;
+        }
+
+        /* Form Grids */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-200);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        input[readonly] {
+            background-color: var(--gray-100);
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        /* Expenses Section */
+        .expense-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .expense-row input {
+            margin-bottom: 0;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--gray-200); color: var(--gray-700); }
+        .btn-success { background: #10b981; color: white; width: 100%; margin-top: 20px; font-size: 1.1rem; padding: 15px; }
+
+        /* Signature Canvas */
+        .signature-wrapper {
+            border: 2px dashed var(--gray-200);
+            border-radius: 8px;
+            position: relative;
+            background: #fff;
+            touch-action: none; /* Important for mobile */
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 200px;
+            cursor: crosshair;
+        }
+
+        .signature-controls {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Hide specific elements during PDF generation logic if needed */
+        .hide-in-pdf {
+            display: none;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .expense-row {
+                flex-wrap: wrap;
+                border-bottom: 1px solid var(--gray-100);
+                padding-bottom: 10px;
+            }
+            
+            .expense-row input {
+                width: 100%;
+            }
+            
+            .expense-row button {
+                width: 100%;
+            }
+            
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="printable-area">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Journey Details Form</h2>
+            <div style="text-align: right; font-size: 0.8rem; color: #666;">Generated via Web App</div>
+        </div>
+
+        <h3><i class="fas fa-route"></i> Journey Info</h3>
+        <div class="form-group">
+            <label>Booking ID</label>
+            <input type="text" id="bookingId" readonly>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Start KM Reading</label>
+                <input type="number" id="startKm" placeholder="e.g., 15000">
+            </div>
+            <div class="form-group">
+                <label>End KM Reading</label>
+                <input type="number" id="endKm" placeholder="e.g., 15250">
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Start Date & Time</label>
+                <input type="datetime-local" id="startTime">
+            </div>
+            <div class="form-group">
+                <label>End Date & Time</label>
+                <input type="datetime-local" id="endTime">
+            </div>
+        </div>
+
+        <h3><i class="fas fa-user"></i> Customer Info</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Customer Name</label>
+                <input type="text" id="custName" placeholder="Full Name">
+            </div>
+            <div class="form-group">
+                <label>Customer Phone</label>
+                <input type="tel" id="custPhone" placeholder="+91 XXXXX XXXXX">
+            </div>
+        </div>
+
+        <h3><i class="fas fa-wallet"></i> Expenses</h3>
+        <div id="expense-container">
+            </div>
+        
+        <button class="btn btn-outline" id="addExpenseBtn" data-html2canvas-ignore="true">
+            <i class="fas fa-plus"></i> Add Expense
+        </button>
+        
+        <h3><i class="fas fa-comment-alt"></i> Remarks / Notes</h3>
+        <div class="form-group">
+            <textarea id="remarks" rows="3" placeholder="Enter any additional notes about the trip, vehicle condition, etc."></textarea>
+        </div>
+
+        <h3><i class="fas fa-pen-nib"></i> Digital Signature</h3>
+        <div class="signature-wrapper">
+            <canvas id="sig-canvas"></canvas>
+        </div>
+        
+        <div class="signature-controls" data-html2canvas-ignore="true">
+            <button class="btn btn-danger" id="clear-sig">Clear</button>
+        </div>
+        
+        <div style="margin-top: 10px; font-size: 0.8rem; color: #888;">
+            By signing above, I confirm the journey details are accurate.
+        </div>
+
+    </div>
+
+    <div style="max-width: 800px; margin: 20px auto;">
+        <button class="btn btn-success" onclick="generatePDF()">
+            <i class="fas fa-file-pdf"></i> Download PDF
+        </button>
+    </div>
+
+    <script>
+        // 1. Generate Booking ID on Load
+        window.onload = function() {
+            const randomPart = Math.floor(100000 + Math.random() * 900000); // 6 digit random
+            const suffix = Math.random().toString(36).substring(2, 8).toUpperCase(); // Random alphanumeric
+            const bookingId = `AST-${randomPart}-${suffix}`;
+            document.getElementById('bookingId').value = bookingId;
+            
+            // Add initial expense row
+            addExpenseRow();
+        };
+
+        // 2. Expense Logic
+        const expenseContainer = document.getElementById('expense-container');
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+
+        function addExpenseRow() {
+            const row = document.createElement('div');
+            row.className = 'expense-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Expense Type (e.g. Toll, Fuel)" style="flex: 2;">
+                <input type="number" placeholder="₹ Amount" style="flex: 1;">
+                <button class="btn btn-danger" onclick="removeRow(this)" data-html2canvas-ignore="true">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            expenseContainer.appendChild(row);
+        }
+
+        function removeRow(btn) {
+            btn.parentElement.remove();
+        }
+
+        addExpenseBtn.addEventListener('click', addExpenseRow);
+
+        // 3. Signature Canvas Logic
+        const canvas = document.getElementById("sig-canvas");
+        const ctx = canvas.getContext("2d");
+        let writingMode = false;
+
+        // Resize canvas to fit parent width
+        function resizeCanvas() {
+            const parentWidth = canvas.parentElement.offsetWidth;
+            canvas.width = parentWidth;
+            canvas.height = 200;
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000000';
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Mouse Events
+        canvas.addEventListener('mousedown', handlePointerDown, {passive: false});
+        canvas.addEventListener('mouseup', handlePointerUp, {passive: false});
+        canvas.addEventListener('mousemove', handlePointerMove, {passive: false});
+
+        // Touch Events (Mobile)
+        canvas.addEventListener('touchstart', handlePointerDown, {passive: false});
+        canvas.addEventListener('touchend', handlePointerUp, {passive: false});
+        canvas.addEventListener('touchmove', handlePointerMove, {passive: false});
+
+        function handlePointerDown(e) {
+            writingMode = true;
+            ctx.beginPath();
+            const [x, y] = getCursorPosition(e);
+            ctx.moveTo(x, y);
+            e.preventDefault(); // Stop scrolling on mobile
+        }
+
+        function handlePointerUp() {
+            writingMode = false;
+        }
+
+        function handlePointerMove(e) {
+            if (!writingMode) return;
+            const [x, y] = getCursorPosition(e);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            e.preventDefault();
+        }
+
+        function getCursorPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return [clientX - rect.left, clientY - rect.top];
+        }
+
+        document.getElementById('clear-sig').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // 4. PDF Generation Logic
+        function generatePDF() {
+            const element = document.getElementById('printable-area');
+            const bookingId = document.getElementById('bookingId').value;
+
+            // Optional: Transform Inputs to Divs specifically for PDF if needed for styling, 
+            // but html2pdf handles input values nicely by default.
+            
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     `Booking_${bookingId}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Before PDF: We rely on data-html2canvas-ignore attributes in HTML 
+            // to hide "Add" and "Delete" buttons automatically.
+
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>

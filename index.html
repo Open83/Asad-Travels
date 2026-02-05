@@ -81,7 +81,7 @@
         }
 
         .section {
-            margin-bottom: 20px; /* Slightly increased spacing for cleaner look */
+            margin-bottom: 20px;
         }
 
         .section-header {
@@ -361,148 +361,109 @@
         // PERSISTENT STORAGE SYSTEM
         // ============================================
         
-        const STORAGE_KEY = 'dutySlipData_v2'; // Changed key to avoid conflict with old data
+        const STORAGE_KEY = 'dutySlipData_v3'; 
         let canvas, ctx, writingMode = false;
         let autoSaveTimeout;
 
         // --- INITIALIZATION ---
         window.onload = function() {
             setupCanvas();
-            
-            // Try to restore existing booking, or create new one
             const savedData = loadBookingData();
-            
             if (savedData) {
                 restoreBookingData(savedData);
                 showRestoreNotification();
             } else {
                 createNewBooking();
             }
-            
-            // Setup auto-save on any input change
             setupAutoSave();
         };
 
         // --- CREATE NEW BOOKING ---
         function createNewBooking() {
             const today = new Date().toLocaleDateString('en-IN', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric' 
+                day: 'numeric', month: 'short', year: 'numeric' 
             });
             document.getElementById('displayDate').textContent = today;
-            
             const randomId = Math.floor(1000 + Math.random() * 9000);
-            const bookingId = `AST-${randomId}`;
-            document.getElementById('bookingId').textContent = bookingId;
-            
-            // Save initial state
+            document.getElementById('bookingId').textContent = `AST-${randomId}`;
             saveBookingData();
         }
 
-        // --- START NEW BOOKING (Clear Everything) ---
+        // --- START NEW BOOKING ---
         function startNewBooking() {
             if (confirm('Are you sure you want to start a new booking? Current data will be cleared.')) {
-                // Clear localStorage
                 localStorage.removeItem(STORAGE_KEY);
-                
-                // Clear canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Clear all inputs
-                document.getElementById('custName').value = '';
-                document.getElementById('custPhone').value = '';
-                document.getElementById('custAddress').value = ''; // Clear Address
-                document.getElementById('startTime').value = '';
-                document.getElementById('endTime').value = '';
-                document.getElementById('startKm').value = '';
-                document.getElementById('endKm').value = '';
-                document.getElementById('useReadingKm').value = ''; // Clear Reading Km
-                document.getElementById('useClosingTime').value = ''; // Clear Closing Time
-                document.getElementById('remarks').value = '';
-                
-                // Create new booking
+                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
                 createNewBooking();
-                
                 alert('New booking created!');
             }
         }
 
-        // --- SAVE DATA TO LOCALSTORAGE ---
+        // --- SAVE DATA ---
         function saveBookingData() {
             const data = {
                 bookingId: document.getElementById('bookingId').textContent,
                 date: document.getElementById('displayDate').textContent,
                 custName: document.getElementById('custName').value,
                 custPhone: document.getElementById('custPhone').value,
-                custAddress: document.getElementById('custAddress').value, // Save Address
+                custAddress: document.getElementById('custAddress').value,
                 startTime: document.getElementById('startTime').value,
                 endTime: document.getElementById('endTime').value,
                 startKm: document.getElementById('startKm').value,
                 endKm: document.getElementById('endKm').value,
-                useReadingKm: document.getElementById('useReadingKm').value, // Save Reading Km
-                useClosingTime: document.getElementById('useClosingTime').value, // Save Closing Time
+                useReadingKm: document.getElementById('useReadingKm').value,
+                useClosingTime: document.getElementById('useClosingTime').value,
                 remarks: document.getElementById('remarks').value,
-                signature: canvas.toDataURL(), // Save signature as image
+                signature: canvas.toDataURL(),
                 timestamp: new Date().toISOString()
             };
-            
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
-        // --- LOAD DATA FROM LOCALSTORAGE ---
+        // --- LOAD & RESTORE ---
         function loadBookingData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             return saved ? JSON.parse(saved) : null;
         }
 
-        // --- RESTORE SAVED DATA ---
         function restoreBookingData(data) {
             document.getElementById('bookingId').textContent = data.bookingId;
             document.getElementById('displayDate').textContent = data.date;
             document.getElementById('custName').value = data.custName || '';
             document.getElementById('custPhone').value = data.custPhone || '';
-            document.getElementById('custAddress').value = data.custAddress || ''; // Restore Address
+            document.getElementById('custAddress').value = data.custAddress || '';
             document.getElementById('startTime').value = data.startTime || '';
             document.getElementById('endTime').value = data.endTime || '';
             document.getElementById('startKm').value = data.startKm || '';
             document.getElementById('endKm').value = data.endKm || '';
-            document.getElementById('useReadingKm').value = data.useReadingKm || ''; // Restore Reading Km
-            document.getElementById('useClosingTime').value = data.useClosingTime || ''; // Restore Closing Time
+            document.getElementById('useReadingKm').value = data.useReadingKm || '';
+            document.getElementById('useClosingTime').value = data.useClosingTime || '';
             document.getElementById('remarks').value = data.remarks || '';
-            
-            // Restore signature
             if (data.signature) {
                 const img = new Image();
-                img.onload = function() {
-                    ctx.drawImage(img, 0, 0);
-                };
+                img.onload = function() { ctx.drawImage(img, 0, 0); };
                 img.src = data.signature;
             }
         }
 
-        // --- AUTO-SAVE SETUP ---
+        // --- AUTO-SAVE ---
         function setupAutoSave() {
-            const inputs = document.querySelectorAll('input, textarea');
-            
-            inputs.forEach(input => {
+            document.querySelectorAll('input, textarea').forEach(input => {
                 input.addEventListener('input', () => {
                     clearTimeout(autoSaveTimeout);
-                    autoSaveTimeout = setTimeout(saveBookingData, 1000); // Save 1 second after typing stops
+                    autoSaveTimeout = setTimeout(saveBookingData, 1000);
                 });
             });
         }
 
-        // --- SHOW RESTORE NOTIFICATION ---
         function showRestoreNotification() {
             const badge = document.getElementById('statusBadge');
             badge.classList.add('active');
-            setTimeout(() => {
-                badge.classList.remove('active');
-            }, 3000);
+            setTimeout(() => badge.classList.remove('active'), 3000);
         }
 
-        // --- SIGNATURE ENGINE ---
+        // --- SIGNATURE ---
         function setupCanvas() {
             canvas = document.getElementById("sig-canvas");
             ctx = canvas.getContext("2d");
@@ -521,12 +482,9 @@
                 }
             }).observe(canvas.parentElement);
 
-            ['mousedown', 'touchstart'].forEach(e => 
-                canvas.addEventListener(e, startDraw, {passive: false}));
-            ['mouseup', 'touchend'].forEach(e => 
-                canvas.addEventListener(e, endDraw, {passive: false}));
-            ['mousemove', 'touchmove'].forEach(e => 
-                canvas.addEventListener(e, draw, {passive: false}));
+            ['mousedown', 'touchstart'].forEach(e => canvas.addEventListener(e, startDraw, {passive: false}));
+            ['mouseup', 'touchend'].forEach(e => canvas.addEventListener(e, endDraw, {passive: false}));
+            ['mousemove', 'touchmove'].forEach(e => canvas.addEventListener(e, draw, {passive: false}));
         }
 
         function startDraw(e) {
@@ -536,12 +494,7 @@
             ctx.moveTo(pos.x, pos.y);
             e.preventDefault();
         }
-
-        function endDraw() { 
-            writingMode = false;
-            saveBookingData(); // Save signature immediately after drawing
-        }
-
+        function endDraw() { writingMode = false; saveBookingData(); }
         function draw(e) {
             if (!writingMode) return;
             const pos = getPos(e);
@@ -549,24 +502,78 @@
             ctx.stroke();
             e.preventDefault();
         }
-
         function getPos(e) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
-
         document.getElementById('clear-sig').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             saveBookingData();
         });
 
-        // --- PDF GENERATION ---
+        // --- PDF GENERATION WITH TIME FORMAT FIX ---
         function generatePDF() {
             const element = document.getElementById('printable-area');
             const bookingId = document.getElementById('bookingId').textContent;
 
+            // Define fields that need 12-hour formatting
+            const inputsToFormat = [
+                { id: 'startTime', type: 'datetime' },
+                { id: 'endTime', type: 'datetime' },
+                { id: 'useClosingTime', type: 'time' }
+            ];
+
+            const originalDisplayStates = [];
+
+            // 1. SWAP INPUTS WITH TEXT SPANS
+            inputsToFormat.forEach(item => {
+                const input = document.getElementById(item.id);
+                if(input) {
+                    // Store original state
+                    originalDisplayStates.push({ el: input, display: input.style.display });
+                    
+                    // Create formatting span
+                    const span = document.createElement('div');
+                    span.style.fontSize = '0.95rem';
+                    span.style.fontWeight = '500';
+                    span.style.color = '#1f2937';
+                    span.style.padding = '6px 0';
+                    span.style.borderBottom = '1px solid #d1d5db';
+                    
+                    // Format the Value
+                    if (input.value) {
+                        if (item.type === 'datetime') {
+                            // Example: 2026-02-05T20:19 -> 05 Feb 2026, 08:19 PM
+                            const dateObj = new Date(input.value);
+                            span.textContent = dateObj.toLocaleString('en-IN', {
+                                day: 'numeric', month: 'short', year: 'numeric',
+                                hour: 'numeric', minute: 'numeric', hour12: true
+                            }).toUpperCase();
+                        } else if (item.type === 'time') {
+                            // Example: 14:22 -> 02:22 PM
+                            const [h, m] = input.value.split(':');
+                            const dateObj = new Date();
+                            dateObj.setHours(h);
+                            dateObj.setMinutes(m);
+                            span.textContent = dateObj.toLocaleTimeString('en-IN', {
+                                hour: 'numeric', minute: 'numeric', hour12: true
+                            }).toUpperCase();
+                        }
+                    } else {
+                        span.textContent = ''; // Empty line if no value
+                        span.style.height = '24px'; // Maintain height
+                    }
+
+                    // Perform Swap
+                    input.style.display = 'none';
+                    input.parentNode.insertBefore(span, input.nextSibling);
+                    item.span = span; // Save reference for removal
+                }
+            });
+
+            // 2. GENERATE PDF
             const opt = {
                 margin:       0,
                 filename:     `LogSheet_${bookingId}.pdf`,
@@ -583,7 +590,16 @@
             element.style.boxShadow = "none";
 
             html2pdf().set(opt).from(element).save().then(() => {
+                // 3. CLEANUP: RESTORE INPUTS
                 element.style.cssText = originalStyle;
+                
+                inputsToFormat.forEach((item, index) => {
+                    const input = document.getElementById(item.id);
+                    if(input) {
+                        input.style.display = originalDisplayStates[index].display;
+                        if (item.span) item.span.remove();
+                    }
+                });
             });
         }
     </script>

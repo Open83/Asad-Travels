@@ -102,7 +102,7 @@
             position: relative;
         }
 
-        /* DUTY SLIP STYLES (EXACT SAME AS YOUR ORIGINAL) */
+        /* DUTY SLIP STYLES (EXACT SAME AS ORIGINAL) */
         .doc-header {
             background: var(--primary);
             color: white;
@@ -282,9 +282,9 @@
             margin-top: 5px;
         }
 
-        /* --- BILL / INVOICE STYLES (UPDATED FOR EXACT PDF MATCH) --- */
+        /* --- BILL / INVOICE STYLES --- */
         .bill-wrapper {
-            padding: 20px 25px; /* Reduced padding slightly to prevent overflow */
+            padding: 20px 25px;
             color: #000;
             font-family: Arial, sans-serif;
             background: white;
@@ -325,12 +325,12 @@
             color: black;
         }
 
-        /* Invoice Grid Layout using HTML Table for strict PDF alignment */
+        /* Invoice Grid Layout */
         table.bill-layout {
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #000;
-            table-layout: fixed; /* Fixes width to prevent cutoff */
+            table-layout: fixed; 
         }
 
         table.bill-layout td, table.bill-layout th {
@@ -338,10 +338,9 @@
             padding: 5px;
             vertical-align: top;
             font-size: 12px;
-            overflow: hidden; /* Prevents spillover */
+            overflow: hidden; 
         }
 
-        /* Specific classes for Bill Inputs */
         .bill-input {
             border: none;
             border-bottom: 1px dotted #ccc;
@@ -421,10 +420,6 @@
             transform: scale(0.98); 
         }
 
-        .hidden-in-pdf {
-            /* This class will be used to hide elements in PDF */
-        }
-
         /* Mobile Responsive */
         @media (max-width: 600px) {
             .page-container { width: 100%; box-shadow: none; margin-bottom: 20px;}
@@ -433,7 +428,8 @@
             .doc-body { padding: 20px; }
             .grid-2 { grid-template-columns: 1fr; gap: 15px; }
             
-            /* Allow bill to scroll horizontally on mobile so layout doesn't break */
+            /* Allow bill to scroll horizontally on mobile so layout doesn't break, 
+               BUT this will be overridden during PDF generation */
             .bill-wrapper { padding: 10px; overflow-x: auto; }
             table.bill-layout { min-width: 650px; }
         }
@@ -814,7 +810,7 @@
             document.getElementById('grandTotal').value = total;
         }
 
-        // --- PDF GENERATION (FIXED) ---
+        // --- PDF GENERATION (FIXED FOR MOBILE & DESKTOP) ---
         function generatePDF() {
             let element, filename, opt;
             
@@ -823,7 +819,6 @@
                 const bookingId = document.getElementById('bookingId').textContent;
                 filename = `DutySlip_${bookingId}.pdf`;
                 
-                // Original Duty Slip Options
                 opt = {
                     margin: [10, 10, 10, 10],
                     filename: filename,
@@ -836,7 +831,7 @@
                 element = document.getElementById('bill-printable');
                 filename = `Invoice.pdf`;
 
-                // Handle Signature for Bill
+                // 1. Snapshot Signature
                 const billCanvas = document.getElementById('sig-canvas-bill');
                 const blank = document.createElement('canvas');
                 blank.width = billCanvas.width; blank.height = billCanvas.height;
@@ -844,22 +839,30 @@
                      document.getElementById('bill-sig-preview').src = billCanvas.toDataURL();
                 }
 
-                // Force desktop width for PDF generation to avoid cutoff
+                // 2. Force Styles for PDF Generation
+                // We save original values to restore later
                 const originalWidth = element.style.width;
+                const originalMargin = element.style.margin;
                 const originalPadding = element.style.padding;
                 
+                // FORCE DESKTOP WIDTH
+                // This ensures it generates as if on a large screen, even on mobile
                 element.style.width = '794px'; 
+                element.style.minWidth = '794px'; 
+                element.style.margin = '0'; 
                 element.style.padding = '0';
                 
                 opt = {
-                    margin: [0, 0, 0, 0], // Zero margin for bill to fit full A4
+                    margin: 0, 
                     filename: filename,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
                         scale: 2, 
                         useCORS: true, 
                         scrollY: 0,
-                        windowWidth: 794 // Crucial for layout
+                        scrollX: 0,
+                        windowWidth: 800, // Simulate desktop window
+                        width: 794 
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
@@ -870,9 +873,11 @@
                 .from(element)
                 .save()
                 .then(() => {
-                    // Reset styles if changed
+                    // 3. Restore Styles
                     if(currentTab === 'bill') {
                         element.style.width = '';
+                        element.style.minWidth = '';
+                        element.style.margin = '';
                         element.style.padding = '';
                     }
                 });

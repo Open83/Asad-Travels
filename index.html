@@ -102,7 +102,7 @@
             position: relative;
         }
 
-        /* DUTY SLIP STYLES (EXACT SAME AS ORIGINAL) */
+        /* --- DUTY SLIP STYLES (EXACTLY AS ORIGINAL) --- */
         .doc-header {
             background: var(--primary);
             color: white;
@@ -288,6 +288,7 @@
             color: #000;
             font-family: Arial, sans-serif;
             background: white;
+            position: relative;
         }
 
         .bill-header { text-align: center; margin-bottom: 15px; }
@@ -330,7 +331,7 @@
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #000;
-            table-layout: fixed; 
+            table-layout: fixed; /* Ensures strict column widths */
         }
 
         table.bill-layout td, table.bill-layout th {
@@ -339,6 +340,7 @@
             vertical-align: top;
             font-size: 12px;
             overflow: hidden; 
+            word-wrap: break-word;
         }
 
         .bill-input {
@@ -431,7 +433,7 @@
             /* Allow bill to scroll horizontally on mobile so layout doesn't break, 
                BUT this will be overridden during PDF generation */
             .bill-wrapper { padding: 10px; overflow-x: auto; }
-            table.bill-layout { min-width: 650px; }
+            table.bill-layout { min-width: 700px; }
         }
 
     </style>
@@ -810,7 +812,7 @@
             document.getElementById('grandTotal').value = total;
         }
 
-        // --- PDF GENERATION (FIXED FOR MOBILE & DESKTOP) ---
+        // --- PDF GENERATION (FIXED FOR MOBILE TRUNCATION) ---
         function generatePDF() {
             let element, filename, opt;
             
@@ -839,19 +841,24 @@
                      document.getElementById('bill-sig-preview').src = billCanvas.toDataURL();
                 }
 
-                // 2. Force Styles for PDF Generation
-                // We save original values to restore later
-                const originalWidth = element.style.width;
-                const originalMargin = element.style.margin;
-                const originalPadding = element.style.padding;
-                
-                // FORCE DESKTOP WIDTH
-                // This ensures it generates as if on a large screen, even on mobile
+                // 2. FORCE DESKTOP LAYOUT BEFORE PRINTING
+                // We capture the original values to restore them after
+                const originalStyle = element.getAttribute('style') || '';
+                const wrapper = element.querySelector('.bill-wrapper');
+                const originalWrapperStyle = wrapper.getAttribute('style') || '';
+
+                // Force the container to be standard A4 width (794px)
+                // This forces the "scrollable" mobile view to expand to full size
                 element.style.width = '794px'; 
                 element.style.minWidth = '794px'; 
                 element.style.margin = '0'; 
                 element.style.padding = '0';
                 
+                // Force the wrapper inside to stop scrolling and show everything
+                wrapper.style.overflow = 'visible';
+                wrapper.style.padding = '20px 30px'; // Desktop padding
+                wrapper.style.width = '100%';
+
                 opt = {
                     margin: 0, 
                     filename: filename,
@@ -861,26 +868,22 @@
                         useCORS: true, 
                         scrollY: 0,
                         scrollX: 0,
-                        windowWidth: 800, // Simulate desktop window
-                        width: 794 
+                        windowWidth: 794 // Simulate desktop window
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
+                
+                // 3. Generate and then Restore
+                html2pdf().set(opt).from(element).save().then(() => {
+                    // Restore original styles so the mobile view comes back
+                    element.setAttribute('style', originalStyle);
+                    wrapper.setAttribute('style', originalWrapperStyle);
+                });
+                return; // Exit here because we handle saving inside the promise
             }
 
-            html2pdf()
-                .set(opt)
-                .from(element)
-                .save()
-                .then(() => {
-                    // 3. Restore Styles
-                    if(currentTab === 'bill') {
-                        element.style.width = '';
-                        element.style.minWidth = '';
-                        element.style.margin = '';
-                        element.style.padding = '';
-                    }
-                });
+            // Normal save for Duty Slip
+            html2pdf().set(opt).from(element).save();
         }
     </script>
 </body>

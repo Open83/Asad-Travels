@@ -27,7 +27,8 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            padding-bottom: 60px;
+            /* FIXED: Increased padding so content scrolls above the floating buttons */
+            padding-bottom: 160px; 
             display: flex;
             justify-content: center;
         }
@@ -45,7 +46,7 @@
         .doc-header {
             background: var(--primary);
             color: white;
-            padding: 15px 30px; /* Reduced Padding */
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -77,11 +78,11 @@
 
         /* --- COMPACT BODY --- */
         .doc-body {
-            padding: 15px 30px; /* Reduced Padding */
+            padding: 15px 30px;
         }
 
         .section {
-            margin-bottom: 10px; /* Tighter section spacing */
+            margin-bottom: 10px;
         }
 
         .section-header {
@@ -102,7 +103,7 @@
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px; /* Ensures professional spacing between columns */
+            gap: 15px;
         }
 
         .input-group {
@@ -123,10 +124,10 @@
             border: 1px solid transparent;
             border-bottom: 1px solid #d1d5db;
             background: transparent;
-            font-size: 0.85rem; /* Slightly smaller font for compact fit */
+            font-size: 0.85rem;
             color: var(--text-dark);
             font-weight: 500;
-            padding: 3px 0; /* Reduced padding */
+            padding: 3px 0;
             border-radius: 0;
             outline: none;
             transition: border-color 0.3s;
@@ -150,7 +151,7 @@
             border: 2px dashed #e5e7eb;
             border-radius: 8px;
             background: #fff;
-            height: 85px; /* Reduced height to save space */
+            height: 85px;
             position: relative;
             overflow: hidden;
         }
@@ -162,15 +163,21 @@
             cursor: crosshair;
         }
 
+        /* FIXED: Improved clickable area for Clear Signature */
         .clear-sig-btn {
-            font-size: 0.7rem;
+            display: block;
+            width: 100%;
+            text-align: right;
+            font-size: 0.75rem;
             color: #ef4444;
             background: none;
             border: none;
             text-decoration: underline;
             cursor: pointer;
-            float: right;
+            padding: 8px 0; /* Larger tap area */
             margin-top: 2px;
+            position: relative;
+            z-index: 10;
         }
 
         .floating-actions {
@@ -184,6 +191,9 @@
         }
 
         .hidden-in-pdf { display: inline-flex !important; }
+        
+        /* Specific override for the block-level clear button to hide it in PDF */
+        button.hidden-in-pdf { display: block !important; }
 
         .btn-download {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);

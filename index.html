@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ASAD TRAVELS - Duty Slip & Invoice</title>
+    <title>Duty Slip</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,14 +12,13 @@
 
     <style>
         :root {
-            --primary: #2563eb;
+            --primary: #2563eb;       /* Corporate Blue */
             --primary-dark: #1e40af;
             --text-dark: #1f2937;
             --text-light: #6b7280;
             --border-color: #e5e7eb;
             --bg-color: #f3f4f6;
-            --paper-width: 794px;
-            --red-primary: #dc2626;
+            --paper-width: 794px;     /* A4 Width in Pixels */
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -28,81 +27,23 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            padding-bottom: 80px;
+            padding-bottom: 80px; /* Space for fixed download button */
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
         }
 
-        /* TAB NAVIGATION */
-        .tab-container {
-            width: 100%;
-            max-width: var(--paper-width);
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .tab-buttons {
-            display: flex;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 15px 20px;
-            background: white;
-            border: none;
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-light);
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-        }
-
-        .tab-btn.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: var(--primary);
-        }
-
-        .tab-btn:hover {
-            background: #f9fafb;
-        }
-
-        /* TAB CONTENT */
-        .tab-content {
-            display: none;
-            width: 100%;
-            max-width: var(--paper-width);
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* MAIN CONTAINER */
+        /* --- THE A4 PAPER CONTAINER --- */
         .page-container {
             width: 100%;
             max-width: var(--paper-width);
             background: #ffffff;
-            min-height: auto;
+            /* CRITICAL FIX: Removed min-height: 100vh to prevent PDF empty space issues */
+            min-height: auto; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
         }
 
-        /* --- DUTY SLIP STYLES (UNCHANGED) --- */
+        /* --- HEADER SECTION --- */
         .doc-header {
             background: var(--primary);
             color: white;
@@ -138,12 +79,14 @@
             margin-left: 5px;
         }
 
+        /* --- CONTENT BODY --- */
         .doc-body {
             padding: 25px 30px;
         }
 
+        /* Section Styling */
         .section {
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* Tightened from 20px */
         }
 
         .section-header {
@@ -160,12 +103,14 @@
         
         .section-header i { margin-right: 8px; }
 
+        /* Grid Layouts */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
+        /* Input Styling - "Invisible" mode for PDF look */
         .input-group {
             margin-bottom: 5px;
         }
@@ -181,8 +126,8 @@
 
         input, select, textarea {
             width: 100%;
-            border: 1px solid transparent;
-            border-bottom: 1px solid #d1d5db;
+            border: 1px solid transparent; /* Hidden by default */
+            border-bottom: 1px solid #d1d5db; /* Only bottom line */
             background: transparent;
             font-size: 0.95rem;
             color: var(--text-dark);
@@ -199,6 +144,7 @@
         
         input::placeholder { color: #ccc; font-weight: 400; }
 
+        /* --- EXPENSES TABLE --- */
         .expense-table-header {
             display: flex;
             background: #f9fafb;
@@ -248,9 +194,12 @@
             gap: 8px;
         }
 
+        /* --- SIGNATURE (Smart Break Logic) --- */
         .signature-area {
-            margin-top: 20px;
-            page-break-inside: avoid;
+            margin-top: 20px; /* Reduced to help fit on Page 1 */
+            
+            /* These lines force the signature to stay together as one block */
+            page-break-inside: avoid; 
             break-inside: avoid;
             -webkit-column-break-inside: avoid;
         }
@@ -282,140 +231,23 @@
             margin-top: 5px;
         }
 
-        /* --- BILL / INVOICE STYLES --- */
-        .bill-wrapper {
-            padding: 30px;
-            color: #000;
-            font-family: Arial, sans-serif;
-            background: white;
-        }
-
-        .bill-header { text-align: center; margin-bottom: 15px; }
-        
-        .bill-company-name {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--red-primary);
-            text-transform: uppercase;
-            margin: 0;
-            line-height: 1.2;
-        }
-        
-        .bill-tagline {
-            font-size: 16px;
-            text-decoration: underline;
-            font-weight: bold;
-            margin: 5px 0 10px 0;
-            color: black;
-        }
-        
-        .bill-contact {
-            font-size: 12px;
-            text-align: left;
-            line-height: 1.5;
-            margin-bottom: 5px;
-            color: black;
-        }
-
-        .bill-title {
-            text-align: center;
-            font-weight: bold;
-            margin: 10px 0;
-            font-size: 14px;
-            color: black;
-        }
-
-        /* Invoice Grid Layout */
-        table.bill-layout {
-            width: 100%;
-            border-collapse: collapse;
-            border: 1px solid #000;
-            table-layout: fixed;
-        }
-
-        table.bill-layout td, table.bill-layout th {
-            border: 1px solid #000;
-            padding: 5px;
-            vertical-align: top;
-            font-size: 12px;
-            word-wrap: break-word; /* Ensure text wraps within cells */
-        }
-
-        .bill-input {
-            border: none;
-            border-bottom: 1px dotted #ccc;
-            width: 100%;
-            font-size: 12px;
-            font-family: Arial, sans-serif;
-            padding: 2px 0;
-            background: transparent;
-            color: black;
-        }
-        .bill-input:focus { border-bottom: 1px solid var(--primary); }
-        .bill-input.bold { font-weight: bold; }
-        .bill-input.red { color: var(--red-primary); }
-
-        .text-bold { font-weight: bold; }
-        .text-center { text-align: center; }
-        
-        .bill-footer {
-            margin-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .bill-sig-box {
-            text-align: center;
-            width: 200px;
-        }
-        
-        .bill-sig-line {
-            width: 100%;
-            height: 50px;
-            border-bottom: 1px solid #000;
-            margin-bottom: 5px;
-            position: relative;
-        }
-        
-        .bill-sig-img {
-            max-width: 100%;
-            max-height: 100%;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            margin: auto;
-        }
-
-        /* Print Stage - Hidden by default */
-        #print-stage {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -9999;
-            opacity: 0;
-            pointer-events: none;
-            width: 794px; /* Force A4 Width */
-            background: white;
-        }
-
-        /* FLOATING DOWNLOAD BUTTON */
+        /* --- FLOATING DOWNLOAD BUTTON --- */
         .floating-actions {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            z-index: 999;
         }
 
         .btn-download {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            width: 100%;
+            background: #10b981;
             color: white;
             border: none;
-            padding: 15px 30px;
+            padding: 14px;
             border-radius: 50px;
             font-size: 1rem;
             font-weight: 600;
@@ -427,288 +259,117 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        
-        .btn-download:active { 
-            transform: scale(0.98); 
-        }
+        .btn-download:active { transform: translateX(-50%) scale(0.98); }
 
-        /* Mobile Responsive for VIEWING only - does not affect printing now */
+        /* Mobile Responsive */
         @media (max-width: 600px) {
-            .page-container { width: 100%; box-shadow: none; margin-bottom: 20px;}
+            .page-container { width: 100%; box-shadow: none; }
             .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
             .doc-meta { text-align: left; }
             .doc-body { padding: 20px; }
             .grid-2 { grid-template-columns: 1fr; gap: 15px; }
-            
-            .bill-wrapper { padding: 10px; overflow-x: auto; }
-            table.bill-layout { min-width: 700px; }
         }
-
     </style>
 </head>
 <body>
 
-    <div class="tab-container">
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchTab('duty-slip')">
-                <i class="fas fa-file-alt"></i> Duty Slip
-            </button>
-            <button class="tab-btn" onclick="switchTab('bill')">
-                <i class="fas fa-file-invoice"></i> Bill
-            </button>
+    <div class="page-container" id="printable-area">
+        
+        <div class="doc-header">
+            <h1 class="doc-title">Duty Slip</h1>
+            <div class="doc-meta">
+                <div class="meta-row">Date: <span id="displayDate" style="font-weight:600"></span></div>
+                <div class="meta-row">ID: <span id="bookingId" class="id-badge">...</span></div>
+            </div>
         </div>
-    </div>
 
-    <div id="duty-slip-tab" class="tab-content active">
-        <div class="page-container" id="duty-slip-printable">
+        <div class="doc-body">
             
-            <div class="doc-header">
-                <h1 class="doc-title">Duty Slip</h1>
-                <div class="doc-meta">
-                    <div class="meta-row">Date: <span id="displayDate" style="font-weight:600"></span></div>
-                    <div class="meta-row">ID: <span id="bookingId" class="id-badge">...</span></div>
+            <div class="section">
+                <div class="section-header"><i class="fas fa-user"></i> Customer Details</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Customer Name</label>
+                        <input type="text" id="custName" placeholder="Enter full name">
+                    </div>
+                    <div class="input-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="custPhone" placeholder="Enter phone number">
+                    </div>
                 </div>
             </div>
 
-            <div class="doc-body">
+            <div class="section">
+                <div class="section-header"><i class="fas fa-route"></i> Journey Details</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Start Time</label>
+                        <input type="datetime-local" id="startTime">
+                    </div>
+                    <div class="input-group">
+                        <label>End Time</label>
+                        <input type="datetime-local" id="endTime">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 15px;">
+                    <div class="input-group">
+                        <label>Start KM Reading</label>
+                        <input type="number" id="startKm" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label>End KM Reading</label>
+                        <input type="number" id="endKm" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><i class="fas fa-receipt"></i> Expenses</div>
                 
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-user"></i> Customer Details</div>
-                    <div class="grid-2">
-                        <div class="input-group">
-                            <label>Customer Name</label>
-                            <input type="text" id="custName" placeholder="Enter full name">
-                        </div>
-                        <div class="input-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="custPhone" placeholder="Enter phone number">
-                        </div>
-                    </div>
+                <div class="expense-table-header">
+                    <div style="flex: 2;">Description</div>
+                    <div style="flex: 1;">Amount (₹)</div>
+                    <div style="width: 30px;"></div>
                 </div>
 
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-route"></i> Journey Details</div>
-                    <div class="grid-2">
-                        <div class="input-group">
-                            <label>Start Time</label>
-                            <input type="datetime-local" id="startTime">
-                        </div>
-                        <div class="input-group">
-                            <label>End Time</label>
-                            <input type="datetime-local" id="endTime">
-                        </div>
-                    </div>
-                    <div class="grid-2" style="margin-top: 15px;">
-                        <div class="input-group">
-                            <label>Start KM Reading</label>
-                            <input type="number" id="startKm" placeholder="0">
-                        </div>
-                        <div class="input-group">
-                            <label>End KM Reading</label>
-                            <input type="number" id="endKm" placeholder="0">
-                        </div>
-                    </div>
-                </div>
+                <div id="expense-container"></div>
 
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-receipt"></i> Expenses</div>
-                    
-                    <div class="expense-table-header">
-                        <div style="flex: 2;">Description</div>
-                        <div style="flex: 1;">Amount (₹)</div>
-                        <div style="width: 30px;"></div>
-                    </div>
-
-                    <div id="expense-container"></div>
-
-                    <button class="btn-add hidden-in-pdf" onclick="addExpenseRow()" data-html2canvas-ignore="true">
-                        <i class="fas fa-plus-circle"></i> Add New Expense
-                    </button>
-                </div>
-
-                <div class="section">
-                    <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
-                    <textarea id="remarks" rows="2" placeholder="Any additional notes about the trip..."></textarea>
-                </div>
-
-                <div class="signature-area">
-                    <label style="margin-bottom: 8px; display:block;">Driver / Customer Signature</label>
-                    <div class="canvas-wrapper">
-                        <canvas id="sig-canvas"></canvas>
-                    </div>
-                    <button class="clear-sig-btn hidden-in-pdf" id="clear-sig" data-html2canvas-ignore="true">
-                        Clear Signature
-                    </button>
-                </div>
-
+                <button class="btn-add hidden-in-pdf" onclick="addExpenseRow()" data-html2canvas-ignore="true">
+                    <i class="fas fa-plus-circle"></i> Add New Expense
+                </button>
             </div>
-            
-            <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 10px;">
-                System Generated Invoice • Valid without physical seal
+
+            <div class="section">
+                <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
+                <textarea id="remarks" rows="2" placeholder="Any additional notes about the trip..."></textarea>
+            </div>
+
+            <div class="signature-area">
+                <label style="margin-bottom: 8px; display:block;">Driver / Customer Signature</label>
+                <div class="canvas-wrapper">
+                    <canvas id="sig-canvas"></canvas>
+                </div>
+                <button class="clear-sig-btn hidden-in-pdf" id="clear-sig" data-html2canvas-ignore="true">
+                    Clear Signature
+                </button>
             </div>
 
         </div>
-    </div>
-
-    <div id="bill-tab" class="tab-content">
-        <div class="page-container" id="bill-printable">
-            <div class="bill-wrapper">
-                
-                <div class="bill-header">
-                    <h1 class="bill-company-name">ASAD TRAVELS</h1>
-                    <div class="bill-tagline">CAR RENTAL SOLUTION</div>
-                </div>
-                
-                <div class="bill-contact">
-                    E-Mail: - javeedkazi75@gmail.com<br>
-                    Mob: - 9869310609 / 9167166825
-                </div>
-
-                <div class="bill-title">INVOICE</div>
-
-                <table class="bill-layout">
-                    <tr>
-                        <td colspan="3" style="width: 50%;">
-                            <span class="text-bold">TO-</span><br>
-                            <input type="text" class="bill-input bold red" value="AMG TRAVEL" style="font-size: 14px; margin-top: 5px;">
-                        </td>
-                        <td colspan="2" style="width: 50%;">
-                            <div style="margin-bottom: 5px;">
-                                <span class="text-bold">INVOICE NO - </span>
-                                <input type="text" class="bill-input" value="076" style="width: 80px;">
-                            </div>
-                            <div style="margin-bottom: 5px;">
-                                <span class="text-bold">INVOICE DATE- </span>
-                                <input type="text" class="bill-input" value="27/1/26" style="width: 100px;">
-                            </div>
-                            <div style="margin-bottom: 5px;">
-                                <span class="text-bold">BOOKED BY- </span>
-                                <input type="text" class="bill-input" style="width: 120px;">
-                            </div>
-                            <div>
-                                <span class="text-bold">PROJECT- </span>
-                                <input type="text" class="bill-input" value="Airport pick-up" style="width: 150px;">
-                            </div>
-                        </td>
-                    </tr>
-
-                    <tr class="text-bold text-center">
-                        <td style="width: 42%;">DESCRIPTION.</td>
-                        <td style="width: 13%;">CAR TYPE.</td>
-                        <td style="width: 15%;">CAR NO.</td>
-                        <td style="width: 15%;">RATE.</td>
-                        <td style="width: 15%;">AMOUNT.</td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="3">
-                            <div style="margin-bottom: 8px;">
-                                <span class="text-bold">HIRE CHARGES OF: - </span>
-                                <input type="text" class="bill-input" value="CRYSTA MH 02 EZ 6763" style="width: 55%;">
-                            </div>
-                            <div style="margin-bottom: 8px;">
-                                <span class="text-bold">NO. OF DAYS: - </span>
-                                <input type="text" class="bill-input" value="One day" style="width: 100px;">
-                            </div>
-                            <div style="margin-bottom: 8px;">
-                                <span class="text-bold">ADDITIONAL KM: -</span>
-                                <input type="text" class="bill-input" value="-25" style="width: 80px;">
-                            </div>
-                            <div style="margin-bottom: 8px;">
-                                <span class="text-bold">ADDITIONAL HRS: -</span>
-                                <input type="text" class="bill-input" value="-2:00" style="width: 80px;">
-                            </div>
-                            <div style="margin-bottom: 8px;">
-                                <span class="text-bold">DATE USED FROM: -</span>
-                                <input type="text" class="bill-input" value="21/25/2020" style="width: 80px;">
-                                <span class="text-bold" style="margin-left: 5px;">TO: -</span>
-                                <input type="text" class="bill-input" value="25/25/2525" style="width: 80px;">
-                            </div>
-                            <div style="margin-bottom: 8px;">
-                                <span class="text-bold">TOLL PARKING: - </span>
-                                <input type="text" class="bill-input" value="270 rs" style="width: 100px;">
-                            </div>
-                            <div style="margin-bottom: 0px;">
-                                <span class="text-bold">ADVANCE: -</span>
-                                <input type="text" class="bill-input" value="-200" style="width: 100px;">
-                            </div>
-                        </td>
-                        <td style="vertical-align: top; padding-top: 40px;">
-                            <input type="number" id="rate1" class="bill-input text-center" value="1500">
-                            <div style="height: 110px;"></div>
-                            <input type="number" id="rate2" class="bill-input text-center" value="270">
-                        </td>
-                        <td style="vertical-align: top; padding-top: 40px;">
-                            <input type="number" id="amt1" class="bill-input text-center" value="1500">
-                            <div style="height: 110px;"></div>
-                            <input type="number" id="amt2" class="bill-input text-center" value="270">
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="3" rowspan="2" style="vertical-align: bottom;">
-                            <input type="text" class="bill-input" value="One thousand seven hundred seventy only">
-                        </td>
-                        <td class="text-bold">GRAND TOTAL:-</td>
-                        <td>
-                            <input type="number" id="grandTotal" class="bill-input text-center text-bold" value="1770">
-                        </td>
-                    </tr>
-                </table>
-
-                <div class="bill-footer">
-                    <div style="color: var(--red-primary);">
-                        FOR ASAD TRAVELS
-                    </div>
-                </div>
-                <div class="bill-footer" style="margin-top: 20px;">
-                    <div></div>
-                    <div class="bill-sig-box">
-                        <div class="bill-sig-line">
-                            <img id="bill-sig-preview" class="bill-sig-img">
-                        </div>
-                        <div>Proprietor</div>
-                    </div>
-                </div>
-
-                <div class="signature-area" data-html2canvas-ignore="true">
-                    <label style="margin-bottom: 8px; display:block;">Sign Here (Proprietor)</label>
-                    <div class="canvas-wrapper" style="height: 80px;">
-                        <canvas id="sig-canvas-bill"></canvas>
-                    </div>
-                    <button class="clear-sig-btn" onclick="clearSig('sig-canvas-bill')">Clear Signature</button>
-                </div>
-
-            </div>
+        
+        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 10px;">
+            System Generated Invoice • Valid without physical seal
         </div>
-    </div>
 
-    <div id="print-stage"></div>
+    </div>
 
     <div class="floating-actions">
         <button class="btn-download" onclick="generatePDF()">
-            <i class="fas fa-file-pdf"></i> Download PDF
+            <i class="fas fa-file-pdf"></i> Download Official PDF
         </button>
     </div>
 
     <script>
-        // Current active tab
-        let currentTab = 'duty-slip';
-
-        // --- TAB SWITCHING ---
-        function switchTab(tabName) {
-            currentTab = tabName;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.closest('.tab-btn').classList.add('active');
-            
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabName + '-tab').classList.add('active');
-        }
-
-        // --- DUTY SLIP SETUP ---
+        // --- 1. SETUP & INIT ---
         window.onload = function() {
             // Set Date
             const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -720,14 +381,10 @@
 
             // Initialize Form
             addExpenseRow();
-            setupCanvas('sig-canvas');
-            setupCanvas('sig-canvas-bill');
-
-            // Auto-calculate bill total
-            setupBillCalculation();
+            setupCanvas();
         };
 
-        // --- EXPENSE LOGIC ---
+        // --- 2. EXPENSE LOGIC ---
         function addExpenseRow() {
             const container = document.getElementById('expense-container');
             const row = document.createElement('div');
@@ -742,163 +399,88 @@
             container.appendChild(row);
         }
 
-        // --- SIGNATURE ENGINE ---
-        function setupCanvas(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext("2d");
-            let writingMode = false;
+        // --- 3. SIGNATURE ENGINE ---
+        let canvas, ctx, writingMode = false;
 
+        function setupCanvas() {
+            canvas = document.getElementById("sig-canvas");
+            ctx = canvas.getContext("2d");
+            
+            // Observer guarantees correct size
             new ResizeObserver(() => {
-                const rect = canvas.parentElement.getBoundingClientRect();
-                canvas.width = rect.width;
-                canvas.height = rect.height;
-                ctx.lineWidth = 2;
-                ctx.lineJoin = 'round';
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = '#000';
+                const rect = canvas.getBoundingClientRect();
+                if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                    ctx.lineWidth = 2;
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
+                    ctx.strokeStyle = '#000';
+                }
             }).observe(canvas.parentElement);
 
             ['mousedown', 'touchstart'].forEach(e => 
-                canvas.addEventListener(e, (e) => startDraw(e, ctx, canvas), {passive: false}));
+                canvas.addEventListener(e, startDraw, {passive: false}));
             ['mouseup', 'touchend'].forEach(e => 
                 canvas.addEventListener(e, endDraw, {passive: false}));
             ['mousemove', 'touchmove'].forEach(e => 
-                canvas.addEventListener(e, (e) => draw(e, ctx, canvas), {passive: false}));
+                canvas.addEventListener(e, draw, {passive: false}));
+        }
 
-            function startDraw(e, ctx, canvas) {
-                writingMode = true;
-                ctx.beginPath();
-                const pos = getPos(e, canvas);
-                ctx.moveTo(pos.x, pos.y);
-                e.preventDefault();
-            }
+        function startDraw(e) {
+            writingMode = true;
+            ctx.beginPath();
+            const pos = getPos(e);
+            ctx.moveTo(pos.x, pos.y);
+            e.preventDefault();
+        }
 
-            function endDraw() { writingMode = false; }
+        function endDraw() { writingMode = false; }
 
-            function draw(e, ctx, canvas) {
-                if (!writingMode) return;
-                const pos = getPos(e, canvas);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-                e.preventDefault();
-            }
+        function draw(e) {
+            if (!writingMode) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            e.preventDefault();
+        }
 
-            function getPos(e, canvas) {
-                const rect = canvas.getBoundingClientRect();
-                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                return { x: clientX - rect.left, y: clientY - rect.top };
-            }
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
         document.getElementById('clear-sig').addEventListener('click', () => {
-             const canvas = document.getElementById("sig-canvas");
-             canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
 
-        function clearSig(id) {
-            const canvas = document.getElementById(id);
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-            if(id === 'sig-canvas-bill') {
-                document.getElementById('bill-sig-preview').src = '';
-            }
-        }
-
-        // --- BILL AUTO CALCULATION ---
-        function setupBillCalculation() {
-            const inputs = ['amt1', 'amt2'];
-            inputs.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', calculateBillTotal);
-                }
-            });
-        }
-
-        function calculateBillTotal() {
-            const amount1 = parseFloat(document.getElementById('amt1').value) || 0;
-            const amount2 = parseFloat(document.getElementById('amt2').value) || 0;
-            const total = amount1 + amount2;
-            document.getElementById('grandTotal').value = total;
-        }
-
-        // --- PDF GENERATION (CLONING METHOD) ---
+        // --- 4. PDF GENERATION (Optimized) ---
         function generatePDF() {
-            let element, filename, opt;
-            
-            if (currentTab === 'duty-slip') {
-                element = document.getElementById('duty-slip-printable');
-                const bookingId = document.getElementById('bookingId').textContent;
-                filename = `DutySlip_${bookingId}.pdf`;
-                
-                opt = {
-                    margin: [10, 10, 10, 10],
-                    filename: filename,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
-                    jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
-                };
+            const element = document.getElementById('printable-area');
+            const bookingId = document.getElementById('bookingId').textContent;
 
-                html2pdf().set(opt).from(element).save();
+            const opt = {
+                margin:       0,
+                filename:     `LogSheet_${bookingId}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                // INTELLIGENT PAGE BREAKING
+                pagebreak:    { mode: 'css' }, 
+                jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' }
+            };
 
-            } else {
-                // BILL PDF GENERATION - VIRTUAL DESKTOP METHOD
-                const originalElement = document.getElementById('bill-printable');
-                const printStage = document.getElementById('print-stage');
-                filename = `Invoice.pdf`;
+            // Lock width for consistency
+            const originalStyle = element.style.cssText;
+            element.style.width = "794px";
+            element.style.height = "auto"; // Ensure auto height for accurate cutting
+            element.style.margin = "0 auto";
+            element.style.boxShadow = "none";
 
-                // 1. Prepare Signature Image
-                const billCanvas = document.getElementById('sig-canvas-bill');
-                const blank = document.createElement('canvas');
-                blank.width = billCanvas.width; blank.height = billCanvas.height;
-                if(billCanvas.toDataURL() !== blank.toDataURL()) {
-                     document.getElementById('bill-sig-preview').src = billCanvas.toDataURL();
-                }
-
-                // 2. Clone the Element to a Clean Stage
-                printStage.innerHTML = ''; // Clear stage
-                const clone = originalElement.cloneNode(true);
-                
-                // 3. Force Styles on Clone (Remove scroll, full width)
-                // This ensures it looks like Desktop even if user is on mobile
-                const wrapper = clone.querySelector('.bill-wrapper');
-                wrapper.style.overflow = 'visible';
-                wrapper.style.padding = '30px'; 
-                wrapper.style.width = '100%';
-                
-                // 4. Update Inputs in Clone (Cloning doesn't copy input values)
-                const originalInputs = originalElement.querySelectorAll('input');
-                const cloneInputs = clone.querySelectorAll('input');
-                for (let i = 0; i < originalInputs.length; i++) {
-                    cloneInputs[i].value = originalInputs[i].value;
-                    cloneInputs[i].setAttribute('value', originalInputs[i].value); // burn value into HTML
-                }
-
-                // 5. Append to Stage
-                printStage.appendChild(clone);
-                
-                // 6. Generate PDF from the STAGE, not the live element
-                opt = {
-                    margin: 0,
-                    filename: filename,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2, 
-                        useCORS: true, 
-                        scrollY: 0,
-                        windowWidth: 794 // Simulate desktop
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf()
-                    .set(opt)
-                    .from(clone)
-                    .save()
-                    .then(() => {
-                        printStage.innerHTML = ''; // Clean up
-                    });
-            }
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.cssText = originalStyle;
+            });
         }
     </script>
 </body>

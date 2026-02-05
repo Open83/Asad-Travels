@@ -102,7 +102,7 @@
             position: relative;
         }
 
-        /* --- DUTY SLIP STYLES (EXACTLY AS ORIGINAL) --- */
+        /* --- DUTY SLIP STYLES (UNCHANGED) --- */
         .doc-header {
             background: var(--primary);
             color: white;
@@ -284,11 +284,10 @@
 
         /* --- BILL / INVOICE STYLES --- */
         .bill-wrapper {
-            padding: 20px 25px;
+            padding: 30px;
             color: #000;
             font-family: Arial, sans-serif;
             background: white;
-            position: relative;
         }
 
         .bill-header { text-align: center; margin-bottom: 15px; }
@@ -331,7 +330,7 @@
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #000;
-            table-layout: fixed; /* Ensures strict column widths */
+            table-layout: fixed;
         }
 
         table.bill-layout td, table.bill-layout th {
@@ -339,8 +338,7 @@
             padding: 5px;
             vertical-align: top;
             font-size: 12px;
-            overflow: hidden; 
-            word-wrap: break-word;
+            word-wrap: break-word; /* Ensure text wraps within cells */
         }
 
         .bill-input {
@@ -392,6 +390,18 @@
             margin: auto;
         }
 
+        /* Print Stage - Hidden by default */
+        #print-stage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -9999;
+            opacity: 0;
+            pointer-events: none;
+            width: 794px; /* Force A4 Width */
+            background: white;
+        }
+
         /* FLOATING DOWNLOAD BUTTON */
         .floating-actions {
             position: fixed;
@@ -422,7 +432,7 @@
             transform: scale(0.98); 
         }
 
-        /* Mobile Responsive */
+        /* Mobile Responsive for VIEWING only - does not affect printing now */
         @media (max-width: 600px) {
             .page-container { width: 100%; box-shadow: none; margin-bottom: 20px;}
             .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -430,8 +440,6 @@
             .doc-body { padding: 20px; }
             .grid-2 { grid-template-columns: 1fr; gap: 15px; }
             
-            /* Allow bill to scroll horizontally on mobile so layout doesn't break, 
-               BUT this will be overridden during PDF generation */
             .bill-wrapper { padding: 10px; overflow-x: auto; }
             table.bill-layout { min-width: 700px; }
         }
@@ -675,6 +683,8 @@
         </div>
     </div>
 
+    <div id="print-stage"></div>
+
     <div class="floating-actions">
         <button class="btn-download" onclick="generatePDF()">
             <i class="fas fa-file-pdf"></i> Download PDF
@@ -732,7 +742,7 @@
             container.appendChild(row);
         }
 
-        // --- SIGNATURE ENGINE (GENERIC) ---
+        // --- SIGNATURE ENGINE ---
         function setupCanvas(canvasId) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext("2d");
@@ -812,7 +822,7 @@
             document.getElementById('grandTotal').value = total;
         }
 
-        // --- PDF GENERATION (FIXED FOR MOBILE TRUNCATION) ---
+        // --- PDF GENERATION (CLONING METHOD) ---
         function generatePDF() {
             let element, filename, opt;
             
@@ -829,11 +839,15 @@
                     jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
                 };
 
+                html2pdf().set(opt).from(element).save();
+
             } else {
-                element = document.getElementById('bill-printable');
+                // BILL PDF GENERATION - VIRTUAL DESKTOP METHOD
+                const originalElement = document.getElementById('bill-printable');
+                const printStage = document.getElementById('print-stage');
                 filename = `Invoice.pdf`;
 
-                // 1. Snapshot Signature
+                // 1. Prepare Signature Image
                 const billCanvas = document.getElementById('sig-canvas-bill');
                 const blank = document.createElement('canvas');
                 blank.width = billCanvas.width; blank.height = billCanvas.height;
@@ -841,49 +855,50 @@
                      document.getElementById('bill-sig-preview').src = billCanvas.toDataURL();
                 }
 
-                // 2. FORCE DESKTOP LAYOUT BEFORE PRINTING
-                // We capture the original values to restore them after
-                const originalStyle = element.getAttribute('style') || '';
-                const wrapper = element.querySelector('.bill-wrapper');
-                const originalWrapperStyle = wrapper.getAttribute('style') || '';
-
-                // Force the container to be standard A4 width (794px)
-                // This forces the "scrollable" mobile view to expand to full size
-                element.style.width = '794px'; 
-                element.style.minWidth = '794px'; 
-                element.style.margin = '0'; 
-                element.style.padding = '0';
+                // 2. Clone the Element to a Clean Stage
+                printStage.innerHTML = ''; // Clear stage
+                const clone = originalElement.cloneNode(true);
                 
-                // Force the wrapper inside to stop scrolling and show everything
+                // 3. Force Styles on Clone (Remove scroll, full width)
+                // This ensures it looks like Desktop even if user is on mobile
+                const wrapper = clone.querySelector('.bill-wrapper');
                 wrapper.style.overflow = 'visible';
-                wrapper.style.padding = '20px 30px'; // Desktop padding
+                wrapper.style.padding = '30px'; 
                 wrapper.style.width = '100%';
+                
+                // 4. Update Inputs in Clone (Cloning doesn't copy input values)
+                const originalInputs = originalElement.querySelectorAll('input');
+                const cloneInputs = clone.querySelectorAll('input');
+                for (let i = 0; i < originalInputs.length; i++) {
+                    cloneInputs[i].value = originalInputs[i].value;
+                    cloneInputs[i].setAttribute('value', originalInputs[i].value); // burn value into HTML
+                }
 
+                // 5. Append to Stage
+                printStage.appendChild(clone);
+                
+                // 6. Generate PDF from the STAGE, not the live element
                 opt = {
-                    margin: 0, 
+                    margin: 0,
                     filename: filename,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
                         scale: 2, 
                         useCORS: true, 
                         scrollY: 0,
-                        scrollX: 0,
-                        windowWidth: 794 // Simulate desktop window
+                        windowWidth: 794 // Simulate desktop
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
-                
-                // 3. Generate and then Restore
-                html2pdf().set(opt).from(element).save().then(() => {
-                    // Restore original styles so the mobile view comes back
-                    element.setAttribute('style', originalStyle);
-                    wrapper.setAttribute('style', originalWrapperStyle);
-                });
-                return; // Exit here because we handle saving inside the promise
-            }
 
-            // Normal save for Duty Slip
-            html2pdf().set(opt).from(element).save();
+                html2pdf()
+                    .set(opt)
+                    .from(clone)
+                    .save()
+                    .then(() => {
+                        printStage.innerHTML = ''; // Clean up
+                    });
+            }
         }
     </script>
 </body>

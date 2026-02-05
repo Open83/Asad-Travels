@@ -18,7 +18,7 @@
             --text-light: #6b7280;
             --border-color: #e5e7eb;
             --bg-color: #f3f4f6;
-            --paper-width: 794px; /* A4 Width in px at 96 DPI */
+            --paper-width: 794px;
             --red-primary: #dc2626;
         }
 
@@ -28,7 +28,7 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            padding-bottom: 100px;
+            padding-bottom: 80px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -77,6 +77,10 @@
             background: var(--primary);
         }
 
+        .tab-btn:hover {
+            background: #f9fafb;
+        }
+
         /* TAB CONTENT */
         .tab-content {
             display: none;
@@ -88,18 +92,17 @@
             display: block;
         }
 
-        /* PAGE CONTAINER */
+        /* MAIN CONTAINER */
         .page-container {
             width: 100%;
             max-width: var(--paper-width);
             background: #ffffff;
-            min-height: 1123px; /* A4 Height */
+            min-height: auto;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
-            margin: 20px 0;
         }
 
-        /* --- DUTY SLIP SPECIFIC STYLES (UNCHANGED) --- */
+        /* DUTY SLIP STYLES (EXACT SAME AS YOUR ORIGINAL) */
         .doc-header {
             background: var(--primary);
             color: white;
@@ -109,19 +112,73 @@
             align-items: center;
         }
 
-        .doc-title { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; margin: 0; }
-        .doc-meta { text-align: right; font-size: 0.9rem; opacity: 0.9; }
-        .meta-row { margin-bottom: 4px; }
-        .id-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 5px; }
-        .doc-body { padding: 25px 30px; }
-        .section { margin-bottom: 15px; }
-        .section-header { display: flex; align-items: center; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; margin-bottom: 12px; color: var(--primary); font-weight: 700; font-size: 0.95rem; text-transform: uppercase; }
-        .section-header i { margin-right: 8px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .input-group { margin-bottom: 5px; }
+        .doc-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .doc-meta {
+            text-align: right;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .meta-row {
+            margin-bottom: 4px;
+        }
         
-        /* Shared Input Styles */
-        label { display: block; font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-bottom: 2px; }
+        .id-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .doc-body {
+            padding: 25px 30px;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+        }
+        
+        .section-header i { margin-right: 8px; }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
         input, select, textarea {
             width: 100%;
             border: 1px solid transparent;
@@ -135,28 +192,106 @@
             outline: none;
             transition: border-color 0.3s;
         }
-        input:focus, textarea:focus { border-bottom-color: var(--primary); }
+
+        input:focus, textarea:focus {
+            border-bottom-color: var(--primary);
+        }
+        
         input::placeholder { color: #ccc; font-weight: 400; }
 
-        .expense-table-header { display: flex; background: #f9fafb; padding: 8px 5px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; margin-bottom: 10px; }
-        .expense-row { display: flex; gap: 15px; margin-bottom: 8px; align-items: center; }
-        .btn-icon { background: #fee2e2; color: #ef4444; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-add { width: 100%; padding: 10px; border: 1px dashed #d1d5db; background: #f9fafb; color: var(--text-light); font-weight: 600; cursor: pointer; border-radius: 6px; margin-top: 5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-        /* Signature Canvas Shared */
-        .signature-area { margin-top: 20px; page-break-inside: avoid; }
-        .canvas-wrapper { border: 2px dashed #e5e7eb; border-radius: 8px; background: #fff; height: 110px; position: relative; overflow: hidden; }
-        canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
-        .clear-sig-btn { font-size: 0.75rem; color: #ef4444; background: none; border: none; text-decoration: underline; cursor: pointer; float: right; margin-top: 5px; }
-
-        /* --- NEW BILL / INVOICE STYLES (MATCHING IMAGE) --- */
-        .bill-wrapper {
-            padding: 30px;
-            color: #000;
-            font-family: Arial, sans-serif; /* Match typical invoice font */
+        .expense-table-header {
+            display: flex;
+            background: #f9fafb;
+            padding: 8px 5px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 10px;
         }
 
-        .bill-header { text-align: center; margin-bottom: 20px; }
+        .expense-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 10px;
+            border: 1px dashed #d1d5db;
+            background: #f9fafb;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .signature-area {
+            margin-top: 20px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            -webkit-column-break-inside: avoid;
+        }
+
+        .canvas-wrapper {
+            border: 2px dashed #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            height: 110px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: crosshair;
+        }
+
+        .clear-sig-btn {
+            font-size: 0.75rem;
+            color: #ef4444;
+            background: none;
+            border: none;
+            text-decoration: underline;
+            cursor: pointer;
+            float: right;
+            margin-top: 5px;
+        }
+
+        /* --- BILL / INVOICE STYLES (UPDATED FOR EXACT PDF MATCH) --- */
+        .bill-wrapper {
+            padding: 20px 25px; /* Reduced padding slightly to prevent overflow */
+            color: #000;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+
+        .bill-header { text-align: center; margin-bottom: 15px; }
+        
         .bill-company-name {
             font-size: 28px;
             font-weight: bold;
@@ -165,17 +300,21 @@
             margin: 0;
             line-height: 1.2;
         }
+        
         .bill-tagline {
             font-size: 16px;
             text-decoration: underline;
             font-weight: bold;
-            margin: 5px 0 15px 0;
+            margin: 5px 0 10px 0;
+            color: black;
         }
+        
         .bill-contact {
             font-size: 12px;
             text-align: left;
             line-height: 1.5;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            color: black;
         }
 
         .bill-title {
@@ -183,6 +322,7 @@
             font-weight: bold;
             margin: 10px 0;
             font-size: 14px;
+            color: black;
         }
 
         /* Invoice Grid Layout using HTML Table for strict PDF alignment */
@@ -190,6 +330,7 @@
             width: 100%;
             border-collapse: collapse;
             border: 1px solid #000;
+            table-layout: fixed; /* Fixes width to prevent cutoff */
         }
 
         table.bill-layout td, table.bill-layout th {
@@ -197,28 +338,26 @@
             padding: 5px;
             vertical-align: top;
             font-size: 12px;
+            overflow: hidden; /* Prevents spillover */
         }
 
-        /* Specific classes for Bill Inputs to make them blend in */
+        /* Specific classes for Bill Inputs */
         .bill-input {
             border: none;
             border-bottom: 1px dotted #ccc;
             width: 100%;
             font-size: 12px;
             font-family: Arial, sans-serif;
-            padding: 2px;
+            padding: 2px 0;
             background: transparent;
+            color: black;
         }
         .bill-input:focus { border-bottom: 1px solid var(--primary); }
         .bill-input.bold { font-weight: bold; }
         .bill-input.red { color: var(--red-primary); }
 
-        /* Helpers for the table structure */
-        .w-half { width: 50%; }
         .text-bold { font-weight: bold; }
         .text-center { text-align: center; }
-        .no-border-top { border-top: none !important; }
-        .no-border-bottom { border-bottom: none !important; }
         
         .bill-footer {
             margin-top: 10px;
@@ -233,13 +372,15 @@
             text-align: center;
             width: 200px;
         }
+        
         .bill-sig-line {
             width: 100%;
-            height: 60px; /* Space for digital sig */
+            height: 50px;
             border-bottom: 1px solid #000;
             margin-bottom: 5px;
             position: relative;
         }
+        
         .bill-sig-img {
             max-width: 100%;
             max-height: 100%;
@@ -257,8 +398,6 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000;
-            display: flex;
-            gap: 10px;
         }
 
         .btn-download {
@@ -277,21 +416,28 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .btn-download:active { transform: scale(0.98); }
-
-        /* UTILS */
-        .hidden { display: none !important; }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .page-container { width: 100%; box-shadow: none; margin: 0; min-height: auto; }
-            .doc-header { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .grid-2 { grid-template-columns: 1fr; }
-            
-            /* Allow bill table to scroll on mobile so it doesn't break layout */
-            .bill-wrapper { padding: 15px; overflow-x: auto; }
-            table.bill-layout { min-width: 600px; } /* Force width for scroll */
+        
+        .btn-download:active { 
+            transform: scale(0.98); 
         }
+
+        .hidden-in-pdf {
+            /* This class will be used to hide elements in PDF */
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 600px) {
+            .page-container { width: 100%; box-shadow: none; margin-bottom: 20px;}
+            .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
+            .doc-meta { text-align: left; }
+            .doc-body { padding: 20px; }
+            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+            
+            /* Allow bill to scroll horizontally on mobile so layout doesn't break */
+            .bill-wrapper { padding: 10px; overflow-x: auto; }
+            table.bill-layout { min-width: 650px; }
+        }
+
     </style>
 </head>
 <body>
@@ -319,6 +465,7 @@
             </div>
 
             <div class="doc-body">
+                
                 <div class="section">
                     <div class="section-header"><i class="fas fa-user"></i> Customer Details</div>
                     <div class="grid-2">
@@ -359,12 +506,15 @@
 
                 <div class="section">
                     <div class="section-header"><i class="fas fa-receipt"></i> Expenses</div>
+                    
                     <div class="expense-table-header">
                         <div style="flex: 2;">Description</div>
                         <div style="flex: 1;">Amount (₹)</div>
                         <div style="width: 30px;"></div>
                     </div>
+
                     <div id="expense-container"></div>
+
                     <button class="btn-add hidden-in-pdf" onclick="addExpenseRow()" data-html2canvas-ignore="true">
                         <i class="fas fa-plus-circle"></i> Add New Expense
                     </button>
@@ -380,15 +530,17 @@
                     <div class="canvas-wrapper">
                         <canvas id="sig-canvas"></canvas>
                     </div>
-                    <button class="clear-sig-btn hidden-in-pdf" onclick="clearSig('sig-canvas')" data-html2canvas-ignore="true">
+                    <button class="clear-sig-btn hidden-in-pdf" id="clear-sig" data-html2canvas-ignore="true">
                         Clear Signature
                     </button>
                 </div>
+
             </div>
             
             <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 10px;">
                 System Generated Invoice • Valid without physical seal
             </div>
+
         </div>
     </div>
 
@@ -410,11 +562,11 @@
 
                 <table class="bill-layout">
                     <tr>
-                        <td colspan="3" class="w-half">
+                        <td colspan="3" style="width: 50%;">
                             <span class="text-bold">TO-</span><br>
                             <input type="text" class="bill-input bold red" value="AMG TRAVEL" style="font-size: 14px; margin-top: 5px;">
                         </td>
-                        <td colspan="2" class="w-half">
+                        <td colspan="2" style="width: 50%;">
                             <div style="margin-bottom: 5px;">
                                 <span class="text-bold">INVOICE NO - </span>
                                 <input type="text" class="bill-input" value="076" style="width: 80px;">
@@ -435,10 +587,10 @@
                     </tr>
 
                     <tr class="text-bold text-center">
-                        <td style="width: 45%;">DESCRIPTION.</td>
-                        <td style="width: 15%;">CAR TYPE.</td>
+                        <td style="width: 42%;">DESCRIPTION.</td>
+                        <td style="width: 13%;">CAR TYPE.</td>
                         <td style="width: 15%;">CAR NO.</td>
-                        <td style="width: 10%;">RATE.</td>
+                        <td style="width: 15%;">RATE.</td>
                         <td style="width: 15%;">AMOUNT.</td>
                     </tr>
 
@@ -446,7 +598,7 @@
                         <td colspan="3">
                             <div style="margin-bottom: 8px;">
                                 <span class="text-bold">HIRE CHARGES OF: - </span>
-                                <input type="text" class="bill-input" value="CRYSTA MH 02 EZ 6763" style="width: 60%;">
+                                <input type="text" class="bill-input" value="CRYSTA MH 02 EZ 6763" style="width: 55%;">
                             </div>
                             <div style="margin-bottom: 8px;">
                                 <span class="text-bold">NO. OF DAYS: - </span>
@@ -463,7 +615,7 @@
                             <div style="margin-bottom: 8px;">
                                 <span class="text-bold">DATE USED FROM: -</span>
                                 <input type="text" class="bill-input" value="21/25/2020" style="width: 80px;">
-                                <span class="text-bold" style="margin-left: 10px;">TO: -</span>
+                                <span class="text-bold" style="margin-left: 5px;">TO: -</span>
                                 <input type="text" class="bill-input" value="25/25/2525" style="width: 80px;">
                             </div>
                             <div style="margin-bottom: 8px;">
@@ -475,12 +627,15 @@
                                 <input type="text" class="bill-input" value="-200" style="width: 100px;">
                             </div>
                         </td>
-                        <td style="vertical-align: top; padding-top: 40px;"> <input type="number" id="rate1" class="bill-input text-center" value="1500">
-                            <div style="height: 110px;"></div> <input type="number" id="rate2" class="bill-input text-center" value="270">
+                        <td style="vertical-align: top; padding-top: 40px;">
+                            <input type="number" id="rate1" class="bill-input text-center" value="1500">
+                            <div style="height: 110px;"></div>
+                            <input type="number" id="rate2" class="bill-input text-center" value="270">
                         </td>
                         <td style="vertical-align: top; padding-top: 40px;">
                             <input type="number" id="amt1" class="bill-input text-center" value="1500">
-                            <div style="height: 110px;"></div> <input type="number" id="amt2" class="bill-input text-center" value="270">
+                            <div style="height: 110px;"></div>
+                            <input type="number" id="amt2" class="bill-input text-center" value="270">
                         </td>
                     </tr>
 
@@ -529,47 +684,49 @@
     </div>
 
     <script>
-        // --- GLOBAL STATE ---
+        // Current active tab
         let currentTab = 'duty-slip';
 
-        // --- INIT ---
-        window.onload = function() {
-            // Duty Slip Date
-            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('displayDate').textContent = today;
-            document.getElementById('bookingId').textContent = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
-
-            addExpenseRow();
-            
-            // Setup BOTH Canvases
-            setupCanvas('sig-canvas');
-            setupCanvas('sig-canvas-bill');
-
-            // Bill Calc
-            ['amt1', 'amt2'].forEach(id => {
-                document.getElementById(id).addEventListener('input', updateBillTotal);
-            });
-        };
-
-        // --- TABS ---
+        // --- TAB SWITCHING ---
         function switchTab(tabName) {
             currentTab = tabName;
             
+            // Update tab buttons
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.closest('.tab-btn').classList.add('active');
             
+            // Update tab content
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabName + '-tab').classList.add('active');
         }
 
-        // --- EXPENSES ---
+        // --- DUTY SLIP SETUP ---
+        window.onload = function() {
+            // Set Date
+            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            document.getElementById('displayDate').textContent = today;
+            
+            // Generate ID
+            const randomId = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('bookingId').textContent = `AST-${randomId}`;
+
+            // Initialize Form
+            addExpenseRow();
+            setupCanvas('sig-canvas');
+            setupCanvas('sig-canvas-bill');
+
+            // Auto-calculate bill total
+            setupBillCalculation();
+        };
+
+        // --- EXPENSE LOGIC ---
         function addExpenseRow() {
             const container = document.getElementById('expense-container');
             const row = document.createElement('div');
             row.className = 'expense-row';
             row.innerHTML = `
-                <input type="text" placeholder="Details" style="flex: 2;">
-                <input type="number" placeholder="0" style="flex: 1;">
+                <input type="text" placeholder="e.g. Fuel, Toll, Parking" style="flex: 2;">
+                <input type="number" placeholder="0.00" style="flex: 1;">
                 <button class="btn-icon hidden-in-pdf" onclick="this.parentElement.remove()" data-html2canvas-ignore="true">
                     <i class="fas fa-times"></i>
                 </button>
@@ -577,113 +734,148 @@
             container.appendChild(row);
         }
 
-        // --- SIGNATURE LOGIC (GENERIC) ---
+        // --- SIGNATURE ENGINE (GENERIC) ---
         function setupCanvas(canvasId) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext("2d");
             let writingMode = false;
 
-            // Resize observer
             new ResizeObserver(() => {
                 const rect = canvas.parentElement.getBoundingClientRect();
                 canvas.width = rect.width;
                 canvas.height = rect.height;
                 ctx.lineWidth = 2;
+                ctx.lineJoin = 'round';
                 ctx.lineCap = 'round';
+                ctx.strokeStyle = '#000';
             }).observe(canvas.parentElement);
 
-            // Events
-            const start = (e) => {
+            ['mousedown', 'touchstart'].forEach(e => 
+                canvas.addEventListener(e, (e) => startDraw(e, ctx, canvas), {passive: false}));
+            ['mouseup', 'touchend'].forEach(e => 
+                canvas.addEventListener(e, endDraw, {passive: false}));
+            ['mousemove', 'touchmove'].forEach(e => 
+                canvas.addEventListener(e, (e) => draw(e, ctx, canvas), {passive: false}));
+
+            function startDraw(e, ctx, canvas) {
                 writingMode = true;
                 ctx.beginPath();
-                const {x, y} = getPos(e, canvas);
-                ctx.moveTo(x, y);
+                const pos = getPos(e, canvas);
+                ctx.moveTo(pos.x, pos.y);
                 e.preventDefault();
             }
-            const end = () => { writingMode = false; }
-            const move = (e) => {
-                if(!writingMode) return;
-                const {x, y} = getPos(e, canvas);
-                ctx.lineTo(x, y);
+
+            function endDraw() { writingMode = false; }
+
+            function draw(e, ctx, canvas) {
+                if (!writingMode) return;
+                const pos = getPos(e, canvas);
+                ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
                 e.preventDefault();
             }
 
-            canvas.addEventListener('mousedown', start);
-            canvas.addEventListener('touchstart', start, {passive: false});
-            canvas.addEventListener('mouseup', end);
-            canvas.addEventListener('touchend', end);
-            canvas.addEventListener('mousemove', move);
-            canvas.addEventListener('touchmove', move, {passive: false});
+            function getPos(e, canvas) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
         }
 
-        function getPos(e, canvas) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
+        document.getElementById('clear-sig').addEventListener('click', () => {
+             const canvas = document.getElementById("sig-canvas");
+             canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        });
 
         function clearSig(id) {
             const canvas = document.getElementById(id);
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
             if(id === 'sig-canvas-bill') {
                 document.getElementById('bill-sig-preview').src = '';
             }
         }
 
-        function updateBillTotal() {
-            const a1 = parseFloat(document.getElementById('amt1').value) || 0;
-            const a2 = parseFloat(document.getElementById('amt2').value) || 0;
-            document.getElementById('grandTotal').value = a1 + a2;
+        // --- BILL AUTO CALCULATION ---
+        function setupBillCalculation() {
+            const inputs = ['amt1', 'amt2'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculateBillTotal);
+                }
+            });
         }
 
-        // --- PDF GENERATOR ---
+        function calculateBillTotal() {
+            const amount1 = parseFloat(document.getElementById('amt1').value) || 0;
+            const amount2 = parseFloat(document.getElementById('amt2').value) || 0;
+            const total = amount1 + amount2;
+            document.getElementById('grandTotal').value = total;
+        }
+
+        // --- PDF GENERATION (FIXED) ---
         function generatePDF() {
             let element, filename, opt;
-
+            
             if (currentTab === 'duty-slip') {
                 element = document.getElementById('duty-slip-printable');
-                filename = `DutySlip.pdf`;
+                const bookingId = document.getElementById('bookingId').textContent;
+                filename = `DutySlip_${bookingId}.pdf`;
+                
+                // Original Duty Slip Options
+                opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+                };
+
             } else {
                 element = document.getElementById('bill-printable');
                 filename = `Invoice.pdf`;
-                
-                // Copy signature to image tag before printing
+
+                // Handle Signature for Bill
                 const billCanvas = document.getElementById('sig-canvas-bill');
-                // Only copy if drawn on
                 const blank = document.createElement('canvas');
                 blank.width = billCanvas.width; blank.height = billCanvas.height;
                 if(billCanvas.toDataURL() !== blank.toDataURL()) {
                      document.getElementById('bill-sig-preview').src = billCanvas.toDataURL();
                 }
+
+                // Force desktop width for PDF generation to avoid cutoff
+                const originalWidth = element.style.width;
+                const originalPadding = element.style.padding;
+                
+                element.style.width = '794px'; 
+                element.style.padding = '0';
+                
+                opt = {
+                    margin: [0, 0, 0, 0], // Zero margin for bill to fit full A4
+                    filename: filename,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, 
+                        useCORS: true, 
+                        scrollY: 0,
+                        windowWidth: 794 // Crucial for layout
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
             }
 
-            // Options for strict A4
-            opt = {
-                margin: 0,
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true, 
-                    scrollY: 0,
-                    windowWidth: 794 // Force desktop width for PDF
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Temporary styling to ensure PDF looks perfect
-            const originalStyle = element.getAttribute('style') || '';
-            element.style.width = '794px';
-            element.style.maxWidth = '794px';
-            element.style.margin = '0 auto';
-            element.style.background = 'white';
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.setAttribute('style', originalStyle); // Restore
-            });
+            html2pdf()
+                .set(opt)
+                .from(element)
+                .save()
+                .then(() => {
+                    // Reset styles if changed
+                    if(currentTab === 'bill') {
+                        element.style.width = '';
+                        element.style.padding = '';
+                    }
+                });
         }
     </script>
 </body>

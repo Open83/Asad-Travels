@@ -27,7 +27,7 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            padding-bottom: 80px;
+            padding-bottom: 60px;
             display: flex;
             justify-content: center;
         }
@@ -41,17 +41,18 @@
             position: relative;
         }
 
+        /* --- COMPACT HEADER --- */
         .doc-header {
             background: var(--primary);
             color: white;
-            padding: 20px 30px; /* Slightly reduced padding */
+            padding: 15px 30px; /* Reduced Padding */
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .doc-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -60,52 +61,52 @@
 
         .doc-meta {
             text-align: right;
-            font-size: 0.9rem;
-            opacity: 0.9;
+            font-size: 0.8rem;
+            opacity: 0.95;
         }
 
-        .meta-row {
-            margin-bottom: 4px;
-        }
+        .meta-row { margin-bottom: 2px; }
         
         .id-badge {
             background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
+            padding: 1px 6px;
             border-radius: 4px;
             font-weight: 600;
             margin-left: 5px;
         }
 
+        /* --- COMPACT BODY --- */
         .doc-body {
-            padding: 20px 30px; /* Reduced padding for fit */
+            padding: 15px 30px; /* Reduced Padding */
         }
 
         .section {
-            margin-bottom: 12px; /* Tighter spacing for single page */
+            margin-bottom: 10px; /* Tighter section spacing */
         }
 
         .section-header {
             display: flex;
             align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 6px;
-            margin-bottom: 10px;
+            border-bottom: 1.5px solid var(--border-color);
+            padding-bottom: 4px;
+            margin-bottom: 8px;
             color: var(--primary);
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
         }
         
         .section-header i { margin-right: 8px; }
 
+        /* --- 2 COLUMN GRID --- */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px; /* Slightly tighter gap */
+            gap: 15px; /* Ensures professional spacing between columns */
         }
 
         .input-group {
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         label {
@@ -114,7 +115,7 @@
             color: var(--text-light);
             text-transform: uppercase;
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
         input, select, textarea {
@@ -122,10 +123,10 @@
             border: 1px solid transparent;
             border-bottom: 1px solid #d1d5db;
             background: transparent;
-            font-size: 0.9rem;
+            font-size: 0.85rem; /* Slightly smaller font for compact fit */
             color: var(--text-dark);
             font-weight: 500;
-            padding: 4px 0;
+            padding: 3px 0; /* Reduced padding */
             border-radius: 0;
             outline: none;
             transition: border-color 0.3s;
@@ -137,8 +138,9 @@
         
         input::placeholder { color: #ccc; font-weight: 400; }
 
+        /* --- SIGNATURE AREA --- */
         .signature-area {
-            margin-top: 20px;
+            margin-top: 15px;
             page-break-inside: avoid; 
             break-inside: avoid;
             -webkit-column-break-inside: avoid;
@@ -148,7 +150,7 @@
             border: 2px dashed #e5e7eb;
             border-radius: 8px;
             background: #fff;
-            height: 100px; /* Slightly shorter for fit */
+            height: 85px; /* Reduced height to save space */
             position: relative;
             overflow: hidden;
         }
@@ -161,14 +163,14 @@
         }
 
         .clear-sig-btn {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #ef4444;
             background: none;
             border: none;
             text-decoration: underline;
             cursor: pointer;
             float: right;
-            margin-top: 5px;
+            margin-top: 2px;
         }
 
         .floating-actions {
@@ -181,72 +183,37 @@
             gap: 10px;
         }
 
-        .hidden-in-pdf {
-            display: inline-flex !important;
-        }
+        .hidden-in-pdf { display: inline-flex !important; }
 
         .btn-download {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
+            color: white; border: none; padding: 12px 24px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
         }
 
         .btn-new-booking {
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
+            color: white; border: none; padding: 12px 24px; border-radius: 50px;
+            font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
         }
 
-        .btn-download:active, .btn-new-booking:active { 
-            transform: scale(0.98); 
-        }
+        .btn-download:active, .btn-new-booking:active { transform: scale(0.98); }
 
         .status-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #10b981;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: none;
+            position: absolute; top: 10px; right: 10px; background: #10b981; color: white;
+            padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; display: none;
         }
-
-        .status-badge.active {
-            display: block;
-        }
+        .status-badge.active { display: block; }
 
         @media (max-width: 600px) {
             .page-container { width: 100%; box-shadow: none; }
-            .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
+            .doc-header { padding: 15px; flex-direction: column; align-items: flex-start; gap: 5px; }
             .doc-meta { text-align: left; }
-            .doc-body { padding: 20px; }
-            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
-            .floating-actions { flex-direction: column; }
+            .doc-body { padding: 15px; }
+            .grid-2 { grid-template-columns: 1fr; gap: 10px; }
+            .floating-actions { flex-direction: column; width: 90%; }
         }
     </style>
 </head>
@@ -255,7 +222,7 @@
     <div class="page-container" id="printable-area">
         
         <div class="status-badge" id="statusBadge">
-            <i class="fas fa-check-circle"></i> Data Restored
+            <i class="fas fa-check-circle"></i> Restored
         </div>
 
         <div class="doc-header">
@@ -280,7 +247,7 @@
                         <input type="tel" id="custPhone" placeholder="Enter phone number">
                     </div>
                 </div>
-                <div class="input-group" style="margin-top: 10px;">
+                <div class="input-group" style="margin-top: 5px;">
                     <label>Address</label>
                     <input type="text" id="custAddress" placeholder="Enter full address">
                 </div>
@@ -298,10 +265,10 @@
                         <input type="tel" id="driverPhone" placeholder="Enter driver number">
                     </div>
                 </div>
-                <div class="grid-2" style="margin-top: 10px;">
+                <div class="grid-2" style="margin-top: 5px;">
                     <div class="input-group">
                         <label>Car Type</label>
-                        <input type="text" id="carType" placeholder="e.g. Sedan, SUV">
+                        <input type="text" id="carType" placeholder="e.g. Sedan">
                     </div>
                     <div class="input-group">
                         <label>Car Number</label>
@@ -322,7 +289,7 @@
                         <input type="datetime-local" id="endTime">
                     </div>
                 </div>
-                <div class="grid-2" style="margin-top: 10px;">
+                <div class="grid-2" style="margin-top: 5px;">
                     <div class="input-group">
                         <label>Start KM Reading</label>
                         <input type="number" id="startKm" placeholder="0">
@@ -350,11 +317,11 @@
 
             <div class="section">
                 <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
-                <textarea id="remarks" rows="1" placeholder="Any additional notes..."></textarea>
+                <textarea id="remarks" rows="1" placeholder="Notes..."></textarea>
             </div>
 
             <div class="signature-area">
-                <label style="margin-bottom: 8px; display:block;">Driver / Customer Signature</label>
+                <label style="margin-bottom: 4px; display:block;">Driver / Customer Signature</label>
                 <div class="canvas-wrapper">
                     <canvas id="sig-canvas"></canvas>
                 </div>
@@ -365,7 +332,7 @@
 
         </div>
         
-        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 15px; margin-top: 5px;">
+        <div style="text-align: center; font-size: 0.65rem; color: #9ca3af; padding-bottom: 10px; margin-top: 5px;">
             System Generated Invoice • Valid without physical seal
         </div>
 
@@ -373,7 +340,7 @@
 
     <div class="floating-actions">
         <button class="btn-new-booking" onclick="startNewBooking()">
-            <i class="fas fa-plus"></i> New Booking
+            <i class="fas fa-plus"></i> New
         </button>
         <button class="btn-download" onclick="generatePDF()">
             <i class="fas fa-file-pdf"></i> Download PDF
@@ -382,14 +349,13 @@
 
     <script>
         // ============================================
-        // PERSISTENT STORAGE SYSTEM
+        // DATA & LOGIC
         // ============================================
         
-        const STORAGE_KEY = 'dutySlipData_v4'; // Updated Key
+        const STORAGE_KEY = 'dutySlipData_v5'; 
         let canvas, ctx, writingMode = false;
         let autoSaveTimeout;
 
-        // --- INITIALIZATION ---
         window.onload = function() {
             setupCanvas();
             const savedData = loadBookingData();
@@ -402,7 +368,6 @@
             setupAutoSave();
         };
 
-        // --- CREATE NEW BOOKING ---
         function createNewBooking() {
             const today = new Date().toLocaleDateString('en-IN', { 
                 day: 'numeric', month: 'short', year: 'numeric' 
@@ -413,37 +378,30 @@
             saveBookingData();
         }
 
-        // --- START NEW BOOKING ---
         function startNewBooking() {
-            if (confirm('Are you sure you want to start a new booking? Current data will be cleared.')) {
+            if (confirm('Start new booking? Current data will be cleared.')) {
                 localStorage.removeItem(STORAGE_KEY);
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 document.querySelectorAll('input, textarea').forEach(el => el.value = '');
                 createNewBooking();
-                alert('New booking created!');
             }
         }
 
-        // --- SAVE DATA ---
         function saveBookingData() {
             const data = {
                 bookingId: document.getElementById('bookingId').textContent,
                 date: document.getElementById('displayDate').textContent,
-                // Customer
                 custName: document.getElementById('custName').value,
                 custPhone: document.getElementById('custPhone').value,
                 custAddress: document.getElementById('custAddress').value,
-                // Driver
                 driverName: document.getElementById('driverName').value,
                 driverPhone: document.getElementById('driverPhone').value,
                 carType: document.getElementById('carType').value,
                 carNumber: document.getElementById('carNumber').value,
-                // Journey
                 startTime: document.getElementById('startTime').value,
                 endTime: document.getElementById('endTime').value,
                 startKm: document.getElementById('startKm').value,
                 endKm: document.getElementById('endKm').value,
-                // Uses
                 useReadingKm: document.getElementById('useReadingKm').value,
                 useClosingTime: document.getElementById('useClosingTime').value,
                 remarks: document.getElementById('remarks').value,
@@ -453,7 +411,6 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
-        // --- LOAD & RESTORE ---
         function loadBookingData() {
             const saved = localStorage.getItem(STORAGE_KEY);
             return saved ? JSON.parse(saved) : null;
@@ -462,21 +419,17 @@
         function restoreBookingData(data) {
             document.getElementById('bookingId').textContent = data.bookingId;
             document.getElementById('displayDate').textContent = data.date;
-            // Customer
             document.getElementById('custName').value = data.custName || '';
             document.getElementById('custPhone').value = data.custPhone || '';
             document.getElementById('custAddress').value = data.custAddress || '';
-            // Driver
             document.getElementById('driverName').value = data.driverName || '';
             document.getElementById('driverPhone').value = data.driverPhone || '';
             document.getElementById('carType').value = data.carType || '';
             document.getElementById('carNumber').value = data.carNumber || '';
-            // Journey
             document.getElementById('startTime').value = data.startTime || '';
             document.getElementById('endTime').value = data.endTime || '';
             document.getElementById('startKm').value = data.startKm || '';
             document.getElementById('endKm').value = data.endKm || '';
-            // Uses
             document.getElementById('useReadingKm').value = data.useReadingKm || '';
             document.getElementById('useClosingTime').value = data.useClosingTime || '';
             document.getElementById('remarks').value = data.remarks || '';
@@ -488,7 +441,6 @@
             }
         }
 
-        // --- AUTO-SAVE ---
         function setupAutoSave() {
             document.querySelectorAll('input, textarea').forEach(input => {
                 input.addEventListener('input', () => {
@@ -504,7 +456,7 @@
             setTimeout(() => badge.classList.remove('active'), 3000);
         }
 
-        // --- SIGNATURE (BLUE COLOR) ---
+        // --- SIGNATURE (BLUE) ---
         function setupCanvas() {
             canvas = document.getElementById("sig-canvas");
             ctx = canvas.getContext("2d");
@@ -519,8 +471,7 @@
                     ctx.lineWidth = 2;
                     ctx.lineJoin = 'round';
                     ctx.lineCap = 'round';
-                    // COLOR CHANGED TO BLUE
-                    ctx.strokeStyle = '#2563eb'; 
+                    ctx.strokeStyle = '#2563eb'; // Blue Signature
                 }
             }).observe(canvas.parentElement);
 
@@ -555,12 +506,12 @@
             saveBookingData();
         });
 
-        // --- PDF GENERATION (WITH 12HR FIX) ---
+        // --- PDF GENERATION (12HR + 1 Page Layout) ---
         function generatePDF() {
             const element = document.getElementById('printable-area');
             const bookingId = document.getElementById('bookingId').textContent;
 
-            // Define fields that need 12-hour formatting
+            // 12-Hour Format Helper
             const inputsToFormat = [
                 { id: 'startTime', type: 'datetime' },
                 { id: 'endTime', type: 'datetime' },
@@ -569,17 +520,15 @@
 
             const originalDisplayStates = [];
 
-            // 1. SWAP INPUTS WITH TEXT SPANS
             inputsToFormat.forEach(item => {
                 const input = document.getElementById(item.id);
                 if(input) {
                     originalDisplayStates.push({ el: input, display: input.style.display });
-                    
                     const span = document.createElement('div');
-                    span.style.fontSize = '0.9rem';
+                    span.style.fontSize = '0.85rem';
                     span.style.fontWeight = '500';
                     span.style.color = '#1f2937';
-                    span.style.padding = '4px 0';
+                    span.style.padding = '3px 0';
                     span.style.borderBottom = '1px solid #d1d5db';
                     
                     if (input.value) {
@@ -600,7 +549,7 @@
                         }
                     } else {
                         span.textContent = '';
-                        span.style.height = '24px';
+                        span.style.height = '20px';
                     }
 
                     input.style.display = 'none';
@@ -609,7 +558,7 @@
                 }
             });
 
-            // 2. GENERATE PDF
+            // Generate PDF
             const opt = {
                 margin:       0,
                 filename:     `LogSheet_${bookingId}.pdf`,
@@ -621,12 +570,12 @@
 
             const originalStyle = element.style.cssText;
             element.style.width = "794px";
-            element.style.height = "auto";
+            element.style.height = "auto"; 
             element.style.margin = "0 auto";
             element.style.boxShadow = "none";
 
             html2pdf().set(opt).from(element).save().then(() => {
-                // 3. CLEANUP
+                // Restore original state
                 element.style.cssText = originalStyle;
                 inputsToFormat.forEach((item, index) => {
                     const input = document.getElementById(item.id);

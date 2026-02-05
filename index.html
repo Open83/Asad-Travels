@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Duty Slip</title>
+    <title>Asad Travels - Doc Generator</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
             --primary: #2563eb;       /* Corporate Blue */
-            --primary-dark: #1e40af;
-            --text-dark: #1f2937;
+            --asad-red: #dc2626;      /* Asad Red */
+            --text-dark: #000000;
             --text-light: #6b7280;
-            --border-color: #e5e7eb;
+            --border-color: #000000;  /* Invoice uses solid black borders */
             --bg-color: #f3f4f6;
             --paper-width: 794px;     /* A4 Width in Pixels */
         }
@@ -27,24 +27,58 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            padding-bottom: 80px; /* Space for fixed download button */
+            padding-bottom: 100px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
-        /* --- THE A4 PAPER CONTAINER --- */
+        /* --- NAVIGATION TABS --- */
+        .nav-tabs {
+            background: white;
+            padding: 15px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.3);
+        }
+
+        /* --- SHARED PAGE CONTAINER --- */
         .page-container {
             width: 100%;
             max-width: var(--paper-width);
             background: #ffffff;
-            /* CRITICAL FIX: Removed min-height: 100vh to prevent PDF empty space issues */
-            min-height: auto; 
+            min-height: 1000px; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
+            display: none; /* Hidden by default */
         }
 
-        /* --- HEADER SECTION --- */
-        .doc-header {
+        .page-container.active {
+            display: block;
+        }
+
+        /* --- DUTY SLIP STYLES (Existing) --- */
+        #duty-slip .doc-header {
             background: var(--primary);
             color: white;
             padding: 25px 30px;
@@ -52,434 +86,511 @@
             justify-content: space-between;
             align-items: center;
         }
+        #duty-slip .doc-title { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; margin: 0; }
+        #duty-slip .doc-body { padding: 25px 30px; }
+        #duty-slip .section-header { border-bottom: 2px solid #e5e7eb; color: var(--primary); font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; padding-bottom: 5px; }
+        
+        /* --- INVOICE STYLES (New) --- */
+        #invoice {
+            padding: 40px;
+            color: black;
+        }
 
-        .doc-title {
-            font-size: 1.4rem;
-            font-weight: 700;
+        .invoice-header-text {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .invoice-brand {
+            color: var(--asad-red);
+            font-size: 2.2rem;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
             margin: 0;
+            letter-spacing: 1px;
         }
-
-        .doc-meta {
-            text-align: right;
+        .invoice-sub {
+            text-decoration: underline;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 5px 0 15px 0;
+            display: inline-block;
+        }
+        .contact-info {
             font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .meta-row {
-            margin-bottom: 4px;
-        }
-        
-        .id-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 4px;
+            text-align: left;
+            margin-bottom: 10px;
+            line-height: 1.4;
             font-weight: 600;
-            margin-left: 5px;
         }
 
-        /* --- CONTENT BODY --- */
-        .doc-body {
-            padding: 25px 30px;
-        }
-
-        /* Section Styling */
-        .section {
-            margin-bottom: 15px; /* Tightened from 20px */
-        }
-
-        .section-header {
+        /* Invoice Table Box Structure */
+        .invoice-box {
+            border: 2px solid black;
             display: flex;
-            align-items: center;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-            color: var(--primary);
+            flex-direction: column;
+        }
+
+        .box-row {
+            display: flex;
+            border-bottom: 1px solid black;
+        }
+        .box-row:last-child { border-bottom: none; }
+
+        .box-col {
+            padding: 8px;
+            border-right: 1px solid black;
+        }
+        .box-col:last-child { border-right: none; }
+
+        .col-half { width: 50%; }
+        .col-60 { width: 60%; }
+        .col-40 { width: 40%; }
+        .col-desc { width: 50%; }
+        .col-sm { width: 15%; }
+        .col-rate { width: 15%; }
+        .col-amt { width: 20%; }
+
+        .inv-label {
             font-weight: 700;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-        }
-        
-        .section-header i { margin-right: 8px; }
-
-        /* Grid Layouts */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        /* Input Styling - "Invisible" mode for PDF look */
-        .input-group {
-            margin-bottom: 5px;
-        }
-
-        label {
+            font-size: 0.85rem;
             display: block;
-            font-size: 0.7rem;
-            color: var(--text-light);
-            text-transform: uppercase;
-            font-weight: 600;
             margin-bottom: 2px;
         }
 
-        input, select, textarea {
+        /* Inputs for Invoice */
+        .inv-input {
             width: 100%;
-            border: 1px solid transparent; /* Hidden by default */
-            border-bottom: 1px solid #d1d5db; /* Only bottom line */
-            background: transparent;
+            border: none;
+            background: rgba(255,255,0,0.05); /* Slight tint to show it's editable */
             font-size: 0.95rem;
-            color: var(--text-dark);
             font-weight: 500;
-            padding: 6px 0;
-            border-radius: 0;
-            outline: none;
-            transition: border-color 0.3s;
+            padding: 2px;
         }
-
-        input:focus, textarea:focus {
-            border-bottom-color: var(--primary);
-        }
+        .inv-input:focus { background: #e0f2fe; outline: none; }
         
-        input::placeholder { color: #ccc; font-weight: 400; }
+        .inv-input.bold-val { font-weight: 700; font-size: 1rem; color: var(--asad-red); }
 
-        /* --- EXPENSES TABLE --- */
-        .expense-table-header {
-            display: flex;
-            background: #f9fafb;
-            padding: 8px 5px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-light);
+        /* The Grid Table Header */
+        .table-header {
+            background: transparent;
+            font-weight: 800;
             text-transform: uppercase;
-            margin-bottom: 10px;
+            font-size: 0.85rem;
+            text-align: center;
         }
 
-        .expense-row {
+        /* Totals Section */
+        .total-row {
             display: flex;
-            gap: 15px;
-            margin-bottom: 8px;
+            justify-content: space-between;
             align-items: center;
+            font-weight: 700;
+            font-size: 1.1rem;
         }
 
-        .btn-icon {
-            background: #fee2e2;
-            color: #ef4444;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
+        /* --- COMMON UTILS --- */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .input-group { margin-bottom: 5px; }
+        .input-group label { display: block; font-size: 0.7rem; color: #6b7280; text-transform: uppercase; font-weight: 600; }
+        .input-group input { width: 100%; border: none; border-bottom: 1px solid #d1d5db; padding: 6px 0; outline: none; }
+        
+        /* Signature Area */
+        .signature-area { margin-top: 30px; page-break-inside: avoid; }
+        .canvas-wrapper { border: 2px dashed #e5e7eb; border-radius: 8px; background: #fff; height: 100px; position: relative; }
+        canvas { display: block; width: 100%; height: 100%; }
+        .clear-sig-btn { font-size: 0.75rem; color: #ef4444; background: none; border: none; text-decoration: underline; cursor: pointer; float: right; margin-top: 5px; }
 
-        .btn-add {
-            width: 100%;
-            padding: 10px;
-            border: 1px dashed #d1d5db;
-            background: #f9fafb;
-            color: var(--text-light);
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        /* Floating Button */
+        .floating-actions { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 999; }
+        .btn-download { width: 100%; background: #10b981; color: white; border: none; padding: 14px; border-radius: 50px; font-size: 1rem; font-weight: 600; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
 
-        /* --- SIGNATURE (Smart Break Logic) --- */
-        .signature-area {
-            margin-top: 20px; /* Reduced to help fit on Page 1 */
-            
-            /* These lines force the signature to stay together as one block */
-            page-break-inside: avoid; 
-            break-inside: avoid;
-            -webkit-column-break-inside: avoid;
-        }
-
-        .canvas-wrapper {
-            border: 2px dashed #e5e7eb;
-            border-radius: 8px;
-            background: #fff;
-            height: 110px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
-            cursor: crosshair;
-        }
-
-        .clear-sig-btn {
-            font-size: 0.75rem;
-            color: #ef4444;
-            background: none;
-            border: none;
-            text-decoration: underline;
-            cursor: pointer;
-            float: right;
-            margin-top: 5px;
-        }
-
-        /* --- FLOATING DOWNLOAD BUTTON --- */
-        .floating-actions {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
-            z-index: 999;
-        }
-
-        .btn-download {
-            width: 100%;
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .btn-download:active { transform: translateX(-50%) scale(0.98); }
-
-        /* Mobile Responsive */
+        /* Mobile Adjustments */
         @media (max-width: 600px) {
-            .page-container { width: 100%; box-shadow: none; }
-            .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
-            .doc-meta { text-align: left; }
-            .doc-body { padding: 20px; }
-            .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+            .page-container { width: 100%; box-shadow: none; margin-bottom: 20px; }
+            #invoice { padding: 15px; }
+            .invoice-brand { font-size: 1.8rem; }
+            /* On mobile we stack inputs but keep structure flexible */
         }
     </style>
 </head>
 <body>
 
-    <div class="page-container" id="printable-area">
-        
+    <div class="nav-tabs">
+        <button class="nav-btn active" onclick="switchTab('duty-slip')">Duty Slip</button>
+        <button class="nav-btn" onclick="switchTab('invoice')">Invoice / Bill</button>
+    </div>
+
+    <div class="page-container active" id="duty-slip">
         <div class="doc-header">
             <h1 class="doc-title">Duty Slip</h1>
             <div class="doc-meta">
-                <div class="meta-row">Date: <span id="displayDate" style="font-weight:600"></span></div>
-                <div class="meta-row">ID: <span id="bookingId" class="id-badge">...</span></div>
+                <div>Date: <span id="displayDate" style="font-weight:600"></span></div>
+                <div>ID: <span id="bookingId">...</span></div>
             </div>
         </div>
 
         <div class="doc-body">
-            
             <div class="section">
                 <div class="section-header"><i class="fas fa-user"></i> Customer Details</div>
                 <div class="grid-2">
-                    <div class="input-group">
-                        <label>Customer Name</label>
-                        <input type="text" id="custName" placeholder="Enter full name">
-                    </div>
-                    <div class="input-group">
-                        <label>Phone Number</label>
-                        <input type="tel" id="custPhone" placeholder="Enter phone number">
-                    </div>
+                    <div class="input-group"><label>Customer Name</label><input type="text" id="custName" placeholder="Enter full name"></div>
+                    <div class="input-group"><label>Phone Number</label><input type="tel" id="custPhone" placeholder="Enter phone number"></div>
                 </div>
             </div>
 
             <div class="section">
                 <div class="section-header"><i class="fas fa-route"></i> Journey Details</div>
                 <div class="grid-2">
-                    <div class="input-group">
-                        <label>Start Time</label>
-                        <input type="datetime-local" id="startTime">
-                    </div>
-                    <div class="input-group">
-                        <label>End Time</label>
-                        <input type="datetime-local" id="endTime">
-                    </div>
+                    <div class="input-group"><label>Start Time</label><input type="datetime-local" id="startTime"></div>
+                    <div class="input-group"><label>End Time</label><input type="datetime-local" id="endTime"></div>
                 </div>
                 <div class="grid-2" style="margin-top: 15px;">
-                    <div class="input-group">
-                        <label>Start KM Reading</label>
-                        <input type="number" id="startKm" placeholder="0">
-                    </div>
-                    <div class="input-group">
-                        <label>End KM Reading</label>
-                        <input type="number" id="endKm" placeholder="0">
-                    </div>
+                    <div class="input-group"><label>Start KM Reading</label><input type="number" id="startKm" placeholder="0"></div>
+                    <div class="input-group"><label>End KM Reading</label><input type="number" id="endKm" placeholder="0"></div>
                 </div>
             </div>
 
             <div class="section">
                 <div class="section-header"><i class="fas fa-receipt"></i> Expenses</div>
-                
-                <div class="expense-table-header">
-                    <div style="flex: 2;">Description</div>
-                    <div style="flex: 1;">Amount (₹)</div>
-                    <div style="width: 30px;"></div>
-                </div>
-
                 <div id="expense-container"></div>
-
-                <button class="btn-add hidden-in-pdf" onclick="addExpenseRow()" data-html2canvas-ignore="true">
-                    <i class="fas fa-plus-circle"></i> Add New Expense
-                </button>
-            </div>
-
-            <div class="section">
-                <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
-                <textarea id="remarks" rows="2" placeholder="Any additional notes about the trip..."></textarea>
+                <button onclick="addExpenseRow()" style="margin-top:10px; width:100%; padding:8px; border:1px dashed #ccc; background:none; cursor:pointer;" data-html2canvas-ignore="true">+ Add Expense</button>
             </div>
 
             <div class="signature-area">
-                <label style="margin-bottom: 8px; display:block;">Driver / Customer Signature</label>
-                <div class="canvas-wrapper">
-                    <canvas id="sig-canvas"></canvas>
+                <label style="font-size:0.8rem; font-weight:600;">Driver / Customer Signature</label>
+                <div class="canvas-wrapper"><canvas id="sig-canvas-duty"></canvas></div>
+                <button class="clear-sig-btn" onclick="clearSig('duty')" data-html2canvas-ignore="true">Clear Signature</button>
+            </div>
+        </div>
+        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px;">System Generated • Asad Travels</div>
+    </div>
+
+
+    <div class="page-container" id="invoice">
+        
+        <div class="invoice-header-text">
+            <h1 class="invoice-brand">ASAD TRAVELS</h1>
+            <div class="invoice-sub">CAR RENTAL SOLUTION</div>
+            <div class="contact-info">
+                E-Mail: javeedkazi75@gmail.com<br>
+                Mob: 9869310609 / 9167166825
+            </div>
+        </div>
+
+        <div style="text-align: center; font-weight: 800; margin-bottom: 5px;">INVOICE</div>
+
+        <div class="invoice-box">
+            
+            <div class="box-row">
+                <div class="box-col col-half">
+                    <span class="inv-label">TO-</span>
+                    <input type="text" class="inv-input bold-val" value="AMG TRAVEL" style="font-size: 1.2rem; margin-top: 5px;">
                 </div>
-                <button class="clear-sig-btn hidden-in-pdf" id="clear-sig" data-html2canvas-ignore="true">
-                    Clear Signature
-                </button>
+                <div class="box-col col-half">
+                    <div style="display: flex; margin-bottom: 5px;">
+                        <span class="inv-label" style="width: 100px;">INVOICE NO -</span>
+                        <input type="text" class="inv-input" value="076">
+                    </div>
+                    <div style="display: flex; margin-bottom: 5px;">
+                        <span class="inv-label" style="width: 100px;">INVOICE DATE-</span>
+                        <input type="text" class="inv-input" id="invDate">
+                    </div>
+                    <div style="display: flex; margin-bottom: 5px;">
+                        <span class="inv-label" style="width: 100px;">BOOKED BY-</span>
+                        <input type="text" class="inv-input">
+                    </div>
+                    <div style="display: flex;">
+                        <span class="inv-label" style="width: 100px;">PROJECT-</span>
+                        <input type="text" class="inv-input" value="Airport pick-up">
+                    </div>
+                </div>
+            </div>
+
+            <div class="box-row table-header">
+                <div class="box-col col-desc">DESCRIPTION / CAR TYPE</div>
+                <div class="box-col col-sm">CAR NO.</div>
+                <div class="box-col col-rate">RATE</div>
+                <div class="box-col col-amt">AMOUNT</div>
+            </div>
+
+            <div class="box-row" style="min-height: 400px;">
+                <div class="box-col col-desc">
+                    <div style="margin-bottom: 15px;">
+                        <span class="inv-label">HIRE CHARGES OF :-</span>
+                        <input type="text" class="inv-input" value="CRYSTA MH 02 EZ 6763">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px; display: flex; align-items: center;">
+                        <span class="inv-label" style="width: 100px;">NO. OF DAYS: -</span>
+                        <input type="text" class="inv-input" value="One day" id="dayText">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <span class="inv-label">ADDITIONAL KM: -</span>
+                        <input type="text" class="inv-input">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <span class="inv-label">ADDITIONAL HRS: -</span>
+                        <input type="text" class="inv-input">
+                    </div>
+
+                    <div style="margin-bottom: 25px; display: flex;">
+                        <span class="inv-label" style="margin-right: 5px;">DATE USED FROM: -</span>
+                        <input type="text" class="inv-input" style="width: 60px;">
+                        <span class="inv-label" style="margin: 0 5px;">TO: -</span>
+                        <input type="text" class="inv-input" style="width: 60px;">
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <span class="inv-label">TOLL PARKING: -</span>
+                        <input type="text" class="inv-input" value="270 rs" oninput="extractToll(this.value)">
+                    </div>
+
+                    <div>
+                        <span class="inv-label">ADVANCE: -</span>
+                        <input type="text" class="inv-input">
+                    </div>
+                </div>
+
+                <div class="box-col col-sm">
+                    </div>
+
+                <div class="box-col col-rate">
+                    <input type="number" class="inv-input" value="1500" id="baseRate" style="margin-top: 40px; text-align: right;" oninput="calcTotal()">
+                    
+                    <input type="number" class="inv-input" value="270" id="tollRate" style="margin-top: 200px; text-align: right;" oninput="calcTotal()">
+                </div>
+
+                <div class="box-col col-amt">
+                    <input type="number" class="inv-input" value="1500" id="baseAmount" style="margin-top: 40px; text-align: right;" readonly>
+
+                    <input type="number" class="inv-input" value="270" id="tollAmount" style="margin-top: 200px; text-align: right;" readonly>
+
+                    <div style="margin-top: 150px; font-weight: 800;">GRAND TOTAL:-</div>
+                </div>
+            </div>
+
+            <div class="box-row">
+                <div class="box-col" style="width: 80%; display: flex; align-items: center;">
+                    <span style="font-weight: 600; font-style: italic; margin-right: 10px;">(In Words):</span>
+                    <input type="text" class="inv-input" id="amountWords" value="One thousand seven hundred seventy only" style="font-weight: 600;">
+                </div>
+                <div class="box-col" style="width: 20%; text-align: right; font-weight: 800; font-size: 1.1rem;">
+                    <span id="grandTotalDisplay">1770</span>
+                </div>
             </div>
 
         </div>
+
+        <div style="text-align: right; margin-top: 10px; color: var(--asad-red); font-weight: 700; font-size: 0.9rem;">
+            FOR ASAD TRAVELS
+        </div>
         
-        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 10px;">
-            System Generated Invoice • Valid without physical seal
+        <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+            <div style="width: 200px; text-align: center;">
+                <div class="canvas-wrapper" style="height: 80px; border: none; border-bottom: 1px solid black;">
+                    <canvas id="sig-canvas-inv"></canvas>
+                </div>
+                <div style="font-size: 0.7rem; font-weight: 700; margin-top: 2px;">Proprietor</div>
+                <button class="clear-sig-btn" onclick="clearSig('inv')" data-html2canvas-ignore="true" style="float:none;">Clear</button>
+            </div>
         </div>
 
     </div>
 
     <div class="floating-actions">
         <button class="btn-download" onclick="generatePDF()">
-            <i class="fas fa-file-pdf"></i> Download Official PDF
+            <i class="fas fa-file-pdf"></i> Download PDF
         </button>
     </div>
 
     <script>
-        // --- 1. SETUP & INIT ---
-        window.onload = function() {
-            // Set Date
-            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('displayDate').textContent = today;
-            
-            // Generate ID
-            const randomId = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('bookingId').textContent = `AST-${randomId}`;
+        // --- GLOBAL STATE ---
+        let currentTab = 'duty-slip';
 
-            // Initialize Form
+        // --- INIT ---
+        window.onload = function() {
+            // Setup Dates
+            const today = new Date();
+            document.getElementById('displayDate').textContent = today.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            document.getElementById('invDate').value = today.toLocaleDateString('en-IN'); // 27/1/26 format
+            document.getElementById('bookingId').textContent = `AST-${Math.floor(1000 + Math.random() * 9000)}`;
+            
+            // Setup Canvases
+            setupCanvas('sig-canvas-duty');
+            setupCanvas('sig-canvas-inv');
+            
+            // Initial Expense
             addExpenseRow();
-            setupCanvas();
+            
+            // Initial Calc
+            calcTotal();
         };
 
-        // --- 2. EXPENSE LOGIC ---
+        // --- TABS LOGIC ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            // Hide all pages
+            document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show active
+            document.getElementById(tabId).classList.add('active');
+            // Update button state
+            const btnIndex = tabId === 'duty-slip' ? 0 : 1;
+            document.querySelectorAll('.nav-btn')[btnIndex].classList.add('active');
+        }
+
+        // --- INVOICE CALCULATION LOGIC ---
+        function calcTotal() {
+            const baseRate = parseFloat(document.getElementById('baseRate').value) || 0;
+            const tollRate = parseFloat(document.getElementById('tollRate').value) || 0;
+            
+            // Update Amounts columns (assuming 1 day for simplicity based on image)
+            document.getElementById('baseAmount').value = baseRate;
+            document.getElementById('tollAmount').value = tollRate;
+
+            const total = baseRate + tollRate;
+            document.getElementById('grandTotalDisplay').textContent = total;
+            
+            // Convert to words (Simple version)
+            document.getElementById('amountWords').value = numberToWords(total) + " only";
+        }
+
+        function extractToll(val) {
+            // Try to pull number from string like "270 rs"
+            const num = val.match(/\d+/);
+            if(num) {
+                document.getElementById('tollRate').value = num[0];
+                calcTotal();
+            }
+        }
+
+        function numberToWords(number) {
+            // Simplified implementation for demo. 
+            // In production, use a library or robust function.
+            const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+
+            if (number === 0) return "Zero";
+            
+            let words = "";
+            
+            if (number >= 1000) {
+                words += ones[Math.floor(number / 1000)] + " Thousand ";
+                number %= 1000;
+            }
+            if (number >= 100) {
+                words += ones[Math.floor(number / 100)] + " Hundred ";
+                number %= 100;
+            }
+            if (number >= 20) {
+                words += tens[Math.floor(number / 10)] + " ";
+                number %= 10;
+            }
+            if (number >= 10) {
+                words += teens[number - 10] + " ";
+                number = 0;
+            }
+            if (number > 0) {
+                words += ones[number] + " ";
+            }
+            return words.trim();
+        }
+
+        // --- DUTY SLIP EXPENSES ---
         function addExpenseRow() {
             const container = document.getElementById('expense-container');
             const row = document.createElement('div');
-            row.className = 'expense-row';
+            row.style.display = 'flex';
+            row.style.gap = '10px';
+            row.style.marginBottom = '5px';
             row.innerHTML = `
-                <input type="text" placeholder="e.g. Fuel, Toll, Parking" style="flex: 2;">
-                <input type="number" placeholder="0.00" style="flex: 1;">
-                <button class="btn-icon hidden-in-pdf" onclick="this.parentElement.remove()" data-html2canvas-ignore="true">
-                    <i class="fas fa-times"></i>
-                </button>
+                <input type="text" placeholder="Description" style="flex:2; border-bottom:1px solid #ccc; border-top:none; border-left:none; border-right:none;">
+                <input type="number" placeholder="₹" style="flex:1; border-bottom:1px solid #ccc; border-top:none; border-left:none; border-right:none;">
             `;
             container.appendChild(row);
         }
 
-        // --- 3. SIGNATURE ENGINE ---
-        let canvas, ctx, writingMode = false;
+        // --- CANVAS SIGNATURE (Generic) ---
+        function setupCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext("2d");
+            let writingMode = false;
 
-        function setupCanvas() {
-            canvas = document.getElementById("sig-canvas");
-            ctx = canvas.getContext("2d");
-            
-            // Observer guarantees correct size
+            const startDraw = (e) => {
+                writingMode = true;
+                ctx.beginPath();
+                const {x, y} = getPos(e, canvas);
+                ctx.moveTo(x, y);
+                e.preventDefault();
+            }
+            const endDraw = () => { writingMode = false; }
+            const draw = (e) => {
+                if(!writingMode) return;
+                const {x, y} = getPos(e, canvas);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                e.preventDefault();
+            }
+
+            // Resize handling
             new ResizeObserver(() => {
-                const rect = canvas.getBoundingClientRect();
-                if (canvas.width !== rect.width || canvas.height !== rect.height) {
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
-                    ctx.lineWidth = 2;
-                    ctx.lineJoin = 'round';
-                    ctx.lineCap = 'round';
-                    ctx.strokeStyle = '#000';
-                }
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                ctx.lineWidth = 2;
             }).observe(canvas.parentElement);
 
-            ['mousedown', 'touchstart'].forEach(e => 
-                canvas.addEventListener(e, startDraw, {passive: false}));
-            ['mouseup', 'touchend'].forEach(e => 
-                canvas.addEventListener(e, endDraw, {passive: false}));
-            ['mousemove', 'touchmove'].forEach(e => 
-                canvas.addEventListener(e, draw, {passive: false}));
+            // Events
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('touchstart', startDraw, {passive:false});
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('touchend', endDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('touchmove', draw, {passive:false});
         }
 
-        function startDraw(e) {
-            writingMode = true;
-            ctx.beginPath();
-            const pos = getPos(e);
-            ctx.moveTo(pos.x, pos.y);
-            e.preventDefault();
-        }
-
-        function endDraw() { writingMode = false; }
-
-        function draw(e) {
-            if (!writingMode) return;
-            const pos = getPos(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            e.preventDefault();
-        }
-
-        function getPos(e) {
+        function getPos(e, canvas) {
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             return { x: clientX - rect.left, y: clientY - rect.top };
         }
 
-        document.getElementById('clear-sig').addEventListener('click', () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        });
+        function clearSig(type) {
+            const id = type === 'duty' ? 'sig-canvas-duty' : 'sig-canvas-inv';
+            const canvas = document.getElementById(id);
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+        }
 
-        // --- 4. PDF GENERATION (Optimized) ---
+        // --- PDF GENERATION ---
         function generatePDF() {
-            const element = document.getElementById('printable-area');
-            const bookingId = document.getElementById('bookingId').textContent;
+            // Select active container
+            const element = document.getElementById(currentTab);
+            const filename = currentTab === 'duty-slip' ? 'Asad_DutySlip.pdf' : 'Asad_Invoice.pdf';
 
             const opt = {
-                margin:       0,
-                filename:     `LogSheet_${bookingId}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                // INTELLIGENT PAGE BREAKING
-                pagebreak:    { mode: 'css' }, 
-                jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' }
+                margin: 0,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
             };
 
-            // Lock width for consistency
+            // Temporary styling for perfect print
             const originalStyle = element.style.cssText;
             element.style.width = "794px";
-            element.style.height = "auto"; // Ensure auto height for accurate cutting
             element.style.margin = "0 auto";
-            element.style.boxShadow = "none";
+            element.style.display = "block"; // Ensure it's visible for capture
 
             html2pdf().set(opt).from(element).save().then(() => {
                 element.style.cssText = originalStyle;
+                // Restore visibility logic
+                if(currentTab !== element.id) element.style.display = 'none';
             });
         }
     </script>

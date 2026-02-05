@@ -30,7 +30,8 @@
             padding: 0;
             padding-bottom: 80px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* TAB NAVIGATION */
@@ -83,6 +84,8 @@
         /* TAB CONTENT */
         .tab-content {
             display: none;
+            width: 100%;
+            max-width: var(--paper-width);
         }
 
         .tab-content.active {
@@ -281,7 +284,7 @@
 
         /* BILL/INVOICE STYLES */
         .invoice-container {
-            padding: 30px;
+            padding: 40px 30px;
             background: white;
         }
 
@@ -296,57 +299,64 @@
             font-size: 2.5rem;
             font-weight: 700;
             color: var(--red-primary);
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             margin: 0;
             text-transform: uppercase;
         }
 
         .company-tagline {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             text-decoration: underline;
-            margin: 5px 0 10px 0;
+            margin: 8px 0 15px 0;
+            color: #000;
         }
 
         .company-contact {
-            font-size: 0.9rem;
-            line-height: 1.6;
+            font-size: 0.95rem;
+            line-height: 1.8;
             margin: 0;
+            color: #000;
         }
 
         .invoice-title {
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             text-transform: uppercase;
             margin: 20px 0;
+            color: #000;
+        }
+
+        .invoice-info-section {
+            border: 2px solid #000;
+            margin-bottom: 20px;
         }
 
         .invoice-info-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0;
-            border: 2px solid #000;
-            margin-bottom: 20px;
+            min-height: 150px;
         }
 
         .info-left {
             border-right: 2px solid #000;
-            padding: 15px;
+            padding: 15px 20px;
         }
 
         .info-right {
-            padding: 15px;
+            padding: 15px 20px;
         }
 
         .info-row {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         .info-label {
             font-weight: 600;
-            display: inline-block;
+            display: inline;
         }
 
         .info-value {
@@ -354,63 +364,129 @@
             font-weight: 400;
         }
 
+        .client-name-input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px dotted #999;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--red-primary);
+            padding: 5px 0;
+            margin-top: 5px;
+        }
+
+        .inline-input {
+            border: none;
+            border-bottom: 1px dotted #999;
+            padding: 2px 5px;
+            background: transparent;
+            font-size: 0.95rem;
+        }
+
+        /* Invoice Table */
         .invoice-table {
             width: 100%;
-            border: 2px solid #000;
             border-collapse: collapse;
+            border: 2px solid #000;
             margin-bottom: 0;
         }
 
         .invoice-table th {
-            background: #f3f4f6;
             border: 2px solid #000;
-            padding: 10px;
+            padding: 10px 8px;
             text-align: left;
             font-weight: 700;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            background: #fff;
         }
 
         .invoice-table td {
             border: 2px solid #000;
-            padding: 8px 10px;
+            padding: 8px;
             font-size: 0.9rem;
             vertical-align: top;
         }
 
-        .invoice-table input {
+        .description-cell {
+            padding: 12px 10px;
+        }
+
+        .desc-item {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .desc-label {
+            font-weight: 600;
+            display: inline;
+        }
+
+        .desc-input {
             border: none;
-            border-bottom: 1px solid #d1d5db;
-            padding: 4px 0;
+            border-bottom: 1px dotted #999;
+            padding: 2px 5px;
+            background: transparent;
             font-size: 0.9rem;
+            min-width: 150px;
+        }
+
+        .rate-amount-input {
+            width: 100%;
+            border: none;
+            padding: 5px;
+            font-size: 0.9rem;
+            text-align: center;
         }
 
         .total-row {
-            background: #f9fafb;
             font-weight: 700;
+            background: #f9fafb;
         }
 
-        .amount-words {
+        .amount-words-section {
             border: 2px solid #000;
             border-top: none;
-            padding: 10px;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            padding: 12px 15px;
+            margin-bottom: 30px;
+        }
+
+        .words-input {
+            width: 100%;
+            border: none;
+            padding: 5px 0;
+            font-size: 0.95rem;
+            background: transparent;
         }
 
         .invoice-footer {
-            text-align: right;
-            margin-top: 30px;
+            margin-top: 40px;
             padding-top: 20px;
+            text-align: right;
         }
 
-        .signature-line {
-            display: inline-block;
-            min-width: 200px;
-            border-top: 2px solid #000;
-            text-align: center;
-            padding-top: 5px;
-            font-weight: 600;
+        .footer-text {
+            font-weight: 700;
             color: var(--red-primary);
+            margin-bottom: 50px;
+            font-size: 1rem;
+        }
+
+        .signature-box {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .signature-placeholder {
+            min-width: 200px;
+            height: 60px;
+            border-bottom: 2px solid #000;
+            margin-bottom: 5px;
+        }
+
+        .signature-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #000;
         }
 
         /* FLOATING DOWNLOAD BUTTON */
@@ -439,28 +515,12 @@
             transition: transform 0.2s;
         }
         
-        .btn-download:active { transform: translateX(-50%) scale(0.98); }
+        .btn-download:active { 
+            transform: scale(0.98); 
+        }
 
         .hidden-in-pdf {
             /* This class will be used to hide elements in PDF */
-        }
-
-        /* PDF-SPECIFIC STYLES FOR INVOICE */
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-
-            .tab-container,
-            .floating-actions,
-            .hidden-in-pdf {
-                display: none !important;
-            }
-
-            .invoice-container {
-                padding: 20px;
-            }
         }
 
         /* Mobile Responsive */
@@ -473,8 +533,14 @@
             .invoice-info-grid { grid-template-columns: 1fr; }
             .info-left { border-right: none; border-bottom: 2px solid #000; }
             .company-name { font-size: 1.8rem; }
-            .invoice-container { padding: 15px; }
+            .invoice-container { padding: 20px 15px; }
             .tab-btn { font-size: 0.9rem; padding: 12px 15px; }
+        }
+
+        @media print {
+            body { background: white; }
+            .tab-container,
+            .floating-actions { display: none !important; }
         }
     </style>
 </head>
@@ -584,51 +650,57 @@
         </div>
     </div>
 
-    <!-- BILL/INVOICE TAB (NEW) -->
+    <!-- BILL/INVOICE TAB -->
     <div id="bill-tab" class="tab-content">
         <div class="page-container" id="bill-printable">
             <div class="invoice-container">
                 
                 <!-- Header -->
                 <div class="invoice-header">
-                    <h1 class="company-name" id="bill-company-name">ASAD TRAVELS</h1>
-                    <h2 class="company-tagline" id="bill-tagline">CAR RENTAL SOLUTION</h2>
+                    <h1 class="company-name">ASAD TRAVELS</h1>
+                    <h2 class="company-tagline">CAR RENTAL SOLUTION</h2>
                     <p class="company-contact">
-                        <span>E-Mail: </span><span id="bill-email">javeedkazi75@gmail.com</span><br>
-                        <span>Mob: </span><span id="bill-phone">9869310609 / 9167166825</span>
+                        E-Mail: - javeedkazi75@gmail.com<br>
+                        Mob: - 9869310609/9167166825
                     </p>
                 </div>
 
                 <!-- Invoice Title -->
                 <h3 class="invoice-title">INVOICE</h3>
 
-                <!-- Invoice Info Grid -->
-                <div class="invoice-info-grid">
-                    <div class="info-left">
-                        <div class="info-row">
-                            <span class="info-label">TO-</span>
+                <!-- Invoice Info Section -->
+                <div class="invoice-info-section">
+                    <div class="invoice-info-grid">
+                        <div class="info-left">
+                            <div class="info-row">
+                                <span class="info-label">TO-</span>
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <input type="text" id="bill-client-name" class="client-name-input" 
+                                       placeholder="AMG TRAVEL" value="AMG TRAVEL">
+                            </div>
                         </div>
-                        <div class="info-row" style="margin-top: 10px;">
-                            <input type="text" id="bill-client-name" placeholder="Enter client name" 
-                                   style="width: 100%; font-size: 1.1rem; font-weight: 600; color: var(--red-primary);">
-                        </div>
-                    </div>
-                    <div class="info-right">
-                        <div class="info-row">
-                            <span class="info-label">INVOICE NO - </span>
-                            <input type="text" id="bill-invoice-no" placeholder="076" style="width: 80px;">
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">INVOICE DATE- </span>
-                            <input type="text" id="bill-invoice-date" placeholder="27/1/26" style="width: 100px;">
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">BOOKED BY-</span>
-                            <input type="text" id="bill-booked-by" placeholder="" style="width: 150px;">
-                        </div>
-                        <div class="info-row">
-                            <span class="info-label">PROJECT- </span>
-                            <input type="text" id="bill-project" placeholder="Airport pick-up" style="width: 150px;">
+                        <div class="info-right">
+                            <div class="info-row">
+                                <span class="info-label">INVOICE NO - </span>
+                                <input type="text" id="bill-invoice-no" class="inline-input" 
+                                       placeholder="076" value="076" style="width: 60px;">
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">INVOICE DATE- </span>
+                                <input type="text" id="bill-invoice-date" class="inline-input" 
+                                       placeholder="27/1/26" value="27/1/26" style="width: 80px;">
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">BOOKED BY-</span>
+                                <input type="text" id="bill-booked-by" class="inline-input" 
+                                       placeholder="" style="width: 120px;">
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">PROJECT- </span>
+                                <input type="text" id="bill-project" class="inline-input" 
+                                       placeholder="Airport pick-up" value="Airport pick-up" style="width: 150px;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -637,8 +709,8 @@
                 <table class="invoice-table">
                     <thead>
                         <tr>
-                            <th style="width: 40%;">DESCRIPTION.</th>
-                            <th style="width: 20%;">CAR TYPE.</th>
+                            <th style="width: 45%;">DESCRIPTION.</th>
+                            <th style="width: 15%;">CAR TYPE.</th>
                             <th style="width: 15%;">CAR NO.</th>
                             <th style="width: 12%;">RATE.</th>
                             <th style="width: 13%;">AMOUNT.</th>
@@ -646,42 +718,57 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td rowspan="7" style="vertical-align: top; padding-top: 15px;">
-                                <div style="margin-bottom: 10px;">
-                                    <strong>HIRE CHARGES OF: - </strong>
-                                    <input type="text" id="bill-car-details" placeholder="CRYSTA MH 02 EZ 6763" style="width: 100%;">
+                            <td class="description-cell" rowspan="7">
+                                <div class="desc-item">
+                                    <span class="desc-label">HIRE CHARGES OF: - </span>
+                                    <input type="text" id="bill-car-details" class="desc-input" 
+                                           placeholder="CRYSTA MH 02 EZ 6763" value="CRYSTA MH 02 EZ 6763" 
+                                           style="width: calc(100% - 180px);">
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>NO. OF DAYS: - </strong>
-                                    <input type="text" id="bill-days" placeholder="One day" style="width: 100px;">
+                                <div class="desc-item">
+                                    <span class="desc-label">NO. OF DAYS: - </span>
+                                    <input type="text" id="bill-days" class="desc-input" 
+                                           placeholder="One day" value="One day" style="width: 120px;">
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>ADDITIONAL KM: -</strong>
-                                    <input type="text" id="bill-add-km" placeholder="-" style="width: 80px;">
+                                <div class="desc-item">
+                                    <span class="desc-label">ADDITIONAL KM: -</span>
+                                    <input type="text" id="bill-add-km" class="desc-input" 
+                                           placeholder="" style="width: 80px;">
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>ADDITIONAL HRS: -</strong>
-                                    <input type="text" id="bill-add-hrs" placeholder="-" style="width: 80px;">
+                                <div class="desc-item">
+                                    <span class="desc-label">ADDITIONAL HRS: -</span>
+                                    <input type="text" id="bill-add-hrs" class="desc-input" 
+                                           placeholder="" style="width: 80px;">
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>DATE USED FROM: -</strong>
-                                    <input type="text" id="bill-date-from" placeholder="-" style="width: 100px;">
-                                    <strong style="margin-left: 20px;">TO: -</strong>
-                                    <input type="text" id="bill-date-to" placeholder="-" style="width: 100px;">
+                                <div class="desc-item">
+                                    <span class="desc-label">DATE USED FROM: -</span>
+                                    <input type="text" id="bill-date-from" class="desc-input" 
+                                           placeholder="" style="width: 100px;">
+                                    <span class="desc-label" style="margin-left: 10px;">TO: -</span>
+                                    <input type="text" id="bill-date-to" class="desc-input" 
+                                           placeholder="" style="width: 100px;">
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>TOLL PARKING: - </strong>
-                                    <input type="text" id="bill-toll-text" placeholder="270 rs" style="width: 100px;">
+                                <div class="desc-item">
+                                    <span class="desc-label">TOLL PARKING: - </span>
+                                    <input type="text" id="bill-toll-desc" class="desc-input" 
+                                           placeholder="270 rs" value="270 rs" style="width: 100px;">
                                 </div>
-                                <div style="margin-bottom: 10px;">
-                                    <strong>ADVANCE: -</strong>
-                                    <input type="text" id="bill-advance" placeholder="-" style="width: 100px;">
+                                <div class="desc-item">
+                                    <span class="desc-label">ADVANCE: -</span>
+                                    <input type="text" id="bill-advance" class="desc-input" 
+                                           placeholder="" style="width: 100px;">
                                 </div>
                             </td>
                             <td></td>
                             <td></td>
-                            <td><input type="number" id="bill-rate1" placeholder="1500" style="width: 100%;"></td>
-                            <td><input type="number" id="bill-amount1" placeholder="1500" style="width: 100%;"></td>
+                            <td>
+                                <input type="number" id="bill-rate1" class="rate-amount-input" 
+                                       placeholder="1500" value="1500">
+                            </td>
+                            <td>
+                                <input type="number" id="bill-amount1" class="rate-amount-input" 
+                                       placeholder="1500" value="1500">
+                            </td>
                         </tr>
                         <tr>
                             <td></td>
@@ -704,8 +791,14 @@
                         <tr>
                             <td></td>
                             <td></td>
-                            <td><input type="number" id="bill-rate2" placeholder="270" style="width: 100%;"></td>
-                            <td><input type="number" id="bill-amount2" placeholder="270" style="width: 100%;"></td>
+                            <td>
+                                <input type="number" id="bill-rate2" class="rate-amount-input" 
+                                       placeholder="270" value="270">
+                            </td>
+                            <td>
+                                <input type="number" id="bill-amount2" class="rate-amount-input" 
+                                       placeholder="270" value="270">
+                            </td>
                         </tr>
                         <tr>
                             <td></td>
@@ -713,28 +806,32 @@
                             <td></td>
                             <td></td>
                         </tr>
-                        <tr>
+                        <tr class="total-row">
                             <td></td>
                             <td></td>
-                            <td style="font-weight: 700;">GRAND<br>TOTAL:-</td>
-                            <td style="font-weight: 700;"><span id="bill-grand-total">1770</span></td>
+                            <td style="text-align: center; font-weight: 700;">
+                                GRAND<br>TOTAL:-
+                            </td>
+                            <td style="text-align: center; font-weight: 700; font-size: 1rem;">
+                                <span id="bill-grand-total">1770</span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
 
                 <!-- Amount in Words -->
-                <div class="amount-words">
-                    <input type="text" id="bill-amount-words" placeholder="One thousand seven hundred seventy only" 
-                           style="width: 100%; border: none; font-weight: 500;">
+                <div class="amount-words-section">
+                    <input type="text" id="bill-amount-words" class="words-input" 
+                           placeholder="One thousand seven hundred seventy only" 
+                           value="One thousand seven hundred seventy only">
                 </div>
 
                 <!-- Footer with Signature -->
                 <div class="invoice-footer">
-                    <div style="text-align: right; margin-bottom: 60px;">
-                        <span style="font-weight: 600; color: var(--red-primary);">FOR ASAD TRAVELS</span>
-                    </div>
-                    <div class="signature-line">
-                        Proprietor
+                    <div class="footer-text">FOR ASAD TRAVELS</div>
+                    <div class="signature-box">
+                        <div class="signature-placeholder"></div>
+                        <div class="signature-label">Proprietor</div>
                     </div>
                 </div>
 
@@ -857,7 +954,7 @@
 
         // --- BILL AUTO CALCULATION ---
         function setupBillCalculation() {
-            const inputs = ['bill-rate1', 'bill-amount1', 'bill-rate2', 'bill-amount2'];
+            const inputs = ['bill-amount1', 'bill-amount2'];
             inputs.forEach(id => {
                 const element = document.getElementById(id);
                 if (element) {
@@ -887,29 +984,53 @@
                 filename = `Invoice_${invoiceNo}.pdf`;
             }
 
-            const opt = {
-                margin: 0,
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-                pagebreak: { mode: 'css' },
-                jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
-            };
-
+            // Store original styles
             const originalStyle = element.style.cssText;
+            
+            // Apply PDF-friendly styles
             element.style.width = "794px";
-            element.style.height = "auto";
-            element.style.margin = "0 auto";
+            element.style.maxWidth = "794px";
+            element.style.margin = "0";
+            element.style.padding = "0";
             element.style.boxShadow = "none";
 
-            // Hide interactive elements in PDF
-            const hideElements = element.querySelectorAll('.hidden-in-pdf, .btn-add, .btn-icon, .clear-sig-btn');
-            hideElements.forEach(el => el.style.display = 'none');
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false,
+                    letterRendering: true,
+                    allowTaint: false,
+                    scrollY: 0,
+                    scrollX: 0,
+                    windowWidth: 794,
+                    windowHeight: element.scrollHeight
+                },
+                jsPDF: { 
+                    unit: 'pt', 
+                    format: 'a4', 
+                    orientation: 'portrait',
+                    compress: true
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.style.cssText = originalStyle;
-                hideElements.forEach(el => el.style.display = '');
-            });
+            html2pdf()
+                .set(opt)
+                .from(element)
+                .save()
+                .then(() => {
+                    // Restore original styles
+                    element.style.cssText = originalStyle;
+                })
+                .catch(err => {
+                    console.error('PDF generation error:', err);
+                    alert('Error generating PDF. Please try again.');
+                    element.style.cssText = originalStyle;
+                });
         }
     </script>
 </body>

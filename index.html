@@ -44,7 +44,7 @@
         .doc-header {
             background: var(--primary);
             color: white;
-            padding: 25px 30px;
+            padding: 20px 30px; /* Slightly reduced padding */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -77,22 +77,22 @@
         }
 
         .doc-body {
-            padding: 25px 30px;
+            padding: 20px 30px; /* Reduced padding for fit */
         }
 
         .section {
-            margin-bottom: 20px;
+            margin-bottom: 12px; /* Tighter spacing for single page */
         }
 
         .section-header {
             display: flex;
             align-items: center;
             border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
-            margin-bottom: 12px;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
             color: var(--primary);
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             text-transform: uppercase;
         }
         
@@ -101,16 +101,16 @@
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px; /* Slightly tighter gap */
         }
 
         .input-group {
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-light);
             text-transform: uppercase;
             font-weight: 600;
@@ -122,10 +122,10 @@
             border: 1px solid transparent;
             border-bottom: 1px solid #d1d5db;
             background: transparent;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-dark);
             font-weight: 500;
-            padding: 6px 0;
+            padding: 4px 0;
             border-radius: 0;
             outline: none;
             transition: border-color 0.3s;
@@ -138,7 +138,7 @@
         input::placeholder { color: #ccc; font-weight: 400; }
 
         .signature-area {
-            margin-top: 30px;
+            margin-top: 20px;
             page-break-inside: avoid; 
             break-inside: avoid;
             -webkit-column-break-inside: avoid;
@@ -148,7 +148,7 @@
             border: 2px dashed #e5e7eb;
             border-radius: 8px;
             background: #fff;
-            height: 110px;
+            height: 100px; /* Slightly shorter for fit */
             position: relative;
             overflow: hidden;
         }
@@ -280,9 +280,33 @@
                         <input type="tel" id="custPhone" placeholder="Enter phone number">
                     </div>
                 </div>
-                <div class="input-group" style="margin-top: 15px;">
+                <div class="input-group" style="margin-top: 10px;">
                     <label>Address</label>
                     <input type="text" id="custAddress" placeholder="Enter full address">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><i class="fas fa-id-card"></i> Driver Details</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Driver Name</label>
+                        <input type="text" id="driverName" placeholder="Enter driver name">
+                    </div>
+                    <div class="input-group">
+                        <label>Driver Number</label>
+                        <input type="tel" id="driverPhone" placeholder="Enter driver number">
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 10px;">
+                    <div class="input-group">
+                        <label>Car Type</label>
+                        <input type="text" id="carType" placeholder="e.g. Sedan, SUV">
+                    </div>
+                    <div class="input-group">
+                        <label>Car Number</label>
+                        <input type="text" id="carNumber" placeholder="e.g. MH-01-AB-1234">
+                    </div>
                 </div>
             </div>
 
@@ -298,7 +322,7 @@
                         <input type="datetime-local" id="endTime">
                     </div>
                 </div>
-                <div class="grid-2" style="margin-top: 15px;">
+                <div class="grid-2" style="margin-top: 10px;">
                     <div class="input-group">
                         <label>Start KM Reading</label>
                         <input type="number" id="startKm" placeholder="0">
@@ -326,7 +350,7 @@
 
             <div class="section">
                 <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
-                <textarea id="remarks" rows="2" placeholder="Any additional notes about the trip..."></textarea>
+                <textarea id="remarks" rows="1" placeholder="Any additional notes..."></textarea>
             </div>
 
             <div class="signature-area">
@@ -341,7 +365,7 @@
 
         </div>
         
-        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 20px; margin-top: 10px;">
+        <div style="text-align: center; font-size: 0.7rem; color: #9ca3af; padding-bottom: 15px; margin-top: 5px;">
             System Generated Invoice • Valid without physical seal
         </div>
 
@@ -361,7 +385,7 @@
         // PERSISTENT STORAGE SYSTEM
         // ============================================
         
-        const STORAGE_KEY = 'dutySlipData_v3'; 
+        const STORAGE_KEY = 'dutySlipData_v4'; // Updated Key
         let canvas, ctx, writingMode = false;
         let autoSaveTimeout;
 
@@ -405,13 +429,21 @@
             const data = {
                 bookingId: document.getElementById('bookingId').textContent,
                 date: document.getElementById('displayDate').textContent,
+                // Customer
                 custName: document.getElementById('custName').value,
                 custPhone: document.getElementById('custPhone').value,
                 custAddress: document.getElementById('custAddress').value,
+                // Driver
+                driverName: document.getElementById('driverName').value,
+                driverPhone: document.getElementById('driverPhone').value,
+                carType: document.getElementById('carType').value,
+                carNumber: document.getElementById('carNumber').value,
+                // Journey
                 startTime: document.getElementById('startTime').value,
                 endTime: document.getElementById('endTime').value,
                 startKm: document.getElementById('startKm').value,
                 endKm: document.getElementById('endKm').value,
+                // Uses
                 useReadingKm: document.getElementById('useReadingKm').value,
                 useClosingTime: document.getElementById('useClosingTime').value,
                 remarks: document.getElementById('remarks').value,
@@ -430,16 +462,25 @@
         function restoreBookingData(data) {
             document.getElementById('bookingId').textContent = data.bookingId;
             document.getElementById('displayDate').textContent = data.date;
+            // Customer
             document.getElementById('custName').value = data.custName || '';
             document.getElementById('custPhone').value = data.custPhone || '';
             document.getElementById('custAddress').value = data.custAddress || '';
+            // Driver
+            document.getElementById('driverName').value = data.driverName || '';
+            document.getElementById('driverPhone').value = data.driverPhone || '';
+            document.getElementById('carType').value = data.carType || '';
+            document.getElementById('carNumber').value = data.carNumber || '';
+            // Journey
             document.getElementById('startTime').value = data.startTime || '';
             document.getElementById('endTime').value = data.endTime || '';
             document.getElementById('startKm').value = data.startKm || '';
             document.getElementById('endKm').value = data.endKm || '';
+            // Uses
             document.getElementById('useReadingKm').value = data.useReadingKm || '';
             document.getElementById('useClosingTime').value = data.useClosingTime || '';
             document.getElementById('remarks').value = data.remarks || '';
+            
             if (data.signature) {
                 const img = new Image();
                 img.onload = function() { ctx.drawImage(img, 0, 0); };
@@ -463,7 +504,7 @@
             setTimeout(() => badge.classList.remove('active'), 3000);
         }
 
-        // --- SIGNATURE ---
+        // --- SIGNATURE (BLUE COLOR) ---
         function setupCanvas() {
             canvas = document.getElementById("sig-canvas");
             ctx = canvas.getContext("2d");
@@ -478,7 +519,8 @@
                     ctx.lineWidth = 2;
                     ctx.lineJoin = 'round';
                     ctx.lineCap = 'round';
-                    ctx.strokeStyle = '#000';
+                    // COLOR CHANGED TO BLUE
+                    ctx.strokeStyle = '#2563eb'; 
                 }
             }).observe(canvas.parentElement);
 
@@ -513,7 +555,7 @@
             saveBookingData();
         });
 
-        // --- PDF GENERATION WITH TIME FORMAT FIX ---
+        // --- PDF GENERATION (WITH 12HR FIX) ---
         function generatePDF() {
             const element = document.getElementById('printable-area');
             const bookingId = document.getElementById('bookingId').textContent;
@@ -531,28 +573,23 @@
             inputsToFormat.forEach(item => {
                 const input = document.getElementById(item.id);
                 if(input) {
-                    // Store original state
                     originalDisplayStates.push({ el: input, display: input.style.display });
                     
-                    // Create formatting span
                     const span = document.createElement('div');
-                    span.style.fontSize = '0.95rem';
+                    span.style.fontSize = '0.9rem';
                     span.style.fontWeight = '500';
                     span.style.color = '#1f2937';
-                    span.style.padding = '6px 0';
+                    span.style.padding = '4px 0';
                     span.style.borderBottom = '1px solid #d1d5db';
                     
-                    // Format the Value
                     if (input.value) {
                         if (item.type === 'datetime') {
-                            // Example: 2026-02-05T20:19 -> 05 Feb 2026, 08:19 PM
                             const dateObj = new Date(input.value);
                             span.textContent = dateObj.toLocaleString('en-IN', {
                                 day: 'numeric', month: 'short', year: 'numeric',
                                 hour: 'numeric', minute: 'numeric', hour12: true
                             }).toUpperCase();
                         } else if (item.type === 'time') {
-                            // Example: 14:22 -> 02:22 PM
                             const [h, m] = input.value.split(':');
                             const dateObj = new Date();
                             dateObj.setHours(h);
@@ -562,14 +599,13 @@
                             }).toUpperCase();
                         }
                     } else {
-                        span.textContent = ''; // Empty line if no value
-                        span.style.height = '24px'; // Maintain height
+                        span.textContent = '';
+                        span.style.height = '24px';
                     }
 
-                    // Perform Swap
                     input.style.display = 'none';
                     input.parentNode.insertBefore(span, input.nextSibling);
-                    item.span = span; // Save reference for removal
+                    item.span = span;
                 }
             });
 
@@ -590,9 +626,8 @@
             element.style.boxShadow = "none";
 
             html2pdf().set(opt).from(element).save().then(() => {
-                // 3. CLEANUP: RESTORE INPUTS
+                // 3. CLEANUP
                 element.style.cssText = originalStyle;
-                
                 inputsToFormat.forEach((item, index) => {
                     const input = document.getElementById(item.id);
                     if(input) {

@@ -12,13 +12,13 @@
 
     <style>
         :root {
-            --primary: #2563eb;       /* Corporate Blue */
+            --primary: #2563eb;
             --primary-dark: #1e40af;
             --text-dark: #1f2937;
             --text-light: #6b7280;
             --border-color: #e5e7eb;
             --bg-color: #f3f4f6;
-            --paper-width: 794px;     /* A4 Width in Pixels */
+            --paper-width: 794px;
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -27,23 +27,20 @@
             background-color: var(--bg-color);
             margin: 0;
             padding: 0;
-            padding-bottom: 80px; /* Space for fixed download button */
+            padding-bottom: 80px;
             display: flex;
             justify-content: center;
         }
 
-        /* --- THE A4 PAPER CONTAINER --- */
         .page-container {
             width: 100%;
             max-width: var(--paper-width);
             background: #ffffff;
-            /* CRITICAL FIX: Removed min-height: 100vh to prevent PDF empty space issues */
             min-height: auto; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             position: relative;
         }
 
-        /* --- HEADER SECTION --- */
         .doc-header {
             background: var(--primary);
             color: white;
@@ -79,14 +76,12 @@
             margin-left: 5px;
         }
 
-        /* --- CONTENT BODY --- */
         .doc-body {
             padding: 25px 30px;
         }
 
-        /* Section Styling */
         .section {
-            margin-bottom: 15px; /* Tightened from 20px */
+            margin-bottom: 15px;
         }
 
         .section-header {
@@ -103,14 +98,12 @@
         
         .section-header i { margin-right: 8px; }
 
-        /* Grid Layouts */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
-        /* Input Styling - "Invisible" mode for PDF look */
         .input-group {
             margin-bottom: 5px;
         }
@@ -126,8 +119,8 @@
 
         input, select, textarea {
             width: 100%;
-            border: 1px solid transparent; /* Hidden by default */
-            border-bottom: 1px solid #d1d5db; /* Only bottom line */
+            border: 1px solid transparent;
+            border-bottom: 1px solid #d1d5db;
             background: transparent;
             font-size: 0.95rem;
             color: var(--text-dark);
@@ -144,7 +137,6 @@
         
         input::placeholder { color: #ccc; font-weight: 400; }
 
-        /* --- EXPENSES TABLE --- */
         .expense-table-header {
             display: flex;
             background: #f9fafb;
@@ -194,11 +186,8 @@
             gap: 8px;
         }
 
-        /* --- SIGNATURE (Smart Break Logic) --- */
         .signature-area {
-            margin-top: 20px; /* Reduced to help fit on Page 1 */
-            
-            /* These lines force the signature to stay together as one block */
+            margin-top: 20px;
             page-break-inside: avoid; 
             break-inside: avoid;
             -webkit-column-break-inside: avoid;
@@ -231,26 +220,28 @@
             margin-top: 5px;
         }
 
-        /* --- FLOATING DOWNLOAD BUTTON --- */
         .floating-actions {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
-            max-width: 400px;
             z-index: 999;
+            display: flex;
+            gap: 10px;
+        }
+
+        .hidden-in-pdf {
+            display: inline-flex !important;
         }
 
         .btn-download {
-            width: 100%;
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 14px 28px;
             border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 0.95rem;
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
             display: flex;
             align-items: center;
@@ -259,15 +250,52 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-        .btn-download:active { transform: translateX(-50%) scale(0.98); }
 
-        /* Mobile Responsive */
+        .btn-new-booking {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-download:active, .btn-new-booking:active { 
+            transform: scale(0.98); 
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #10b981;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-badge.active {
+            display: block;
+        }
+
         @media (max-width: 600px) {
             .page-container { width: 100%; box-shadow: none; }
             .doc-header { padding: 20px; flex-direction: column; align-items: flex-start; gap: 10px; }
             .doc-meta { text-align: left; }
             .doc-body { padding: 20px; }
             .grid-2 { grid-template-columns: 1fr; gap: 15px; }
+            .floating-actions { flex-direction: column; }
         }
     </style>
 </head>
@@ -275,6 +303,10 @@
 
     <div class="page-container" id="printable-area">
         
+        <div class="status-badge" id="statusBadge">
+            <i class="fas fa-check-circle"></i> Data Restored
+        </div>
+
         <div class="doc-header">
             <h1 class="doc-title">Duty Slip</h1>
             <div class="doc-meta">
@@ -363,55 +395,224 @@
     </div>
 
     <div class="floating-actions">
+        <button class="btn-new-booking" onclick="startNewBooking()">
+            <i class="fas fa-plus"></i> New Booking
+        </button>
         <button class="btn-download" onclick="generatePDF()">
-            <i class="fas fa-file-pdf"></i> Download Official PDF
+            <i class="fas fa-file-pdf"></i> Download PDF
         </button>
     </div>
 
     <script>
-        // --- 1. SETUP & INIT ---
-        window.onload = function() {
-            // Set Date
-            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-            document.getElementById('displayDate').textContent = today;
-            
-            // Generate ID
-            const randomId = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('bookingId').textContent = `AST-${randomId}`;
+        // ============================================
+        // PERSISTENT STORAGE SYSTEM
+        // ============================================
+        
+        const STORAGE_KEY = 'dutySlipData';
+        let canvas, ctx, writingMode = false;
+        let autoSaveTimeout;
 
-            // Initialize Form
-            addExpenseRow();
+        // --- INITIALIZATION ---
+        window.onload = function() {
             setupCanvas();
+            
+            // Try to restore existing booking, or create new one
+            const savedData = loadBookingData();
+            
+            if (savedData) {
+                restoreBookingData(savedData);
+                showRestoreNotification();
+            } else {
+                createNewBooking();
+            }
+            
+            // Setup auto-save on any input change
+            setupAutoSave();
         };
 
-        // --- 2. EXPENSE LOGIC ---
-        function addExpenseRow() {
+        // --- CREATE NEW BOOKING ---
+        function createNewBooking() {
+            const today = new Date().toLocaleDateString('en-IN', { 
+                day: 'numeric', 
+                month: 'short', 
+                year: 'numeric' 
+            });
+            document.getElementById('displayDate').textContent = today;
+            
+            const randomId = Math.floor(1000 + Math.random() * 9000);
+            const bookingId = `AST-${randomId}`;
+            document.getElementById('bookingId').textContent = bookingId;
+            
+            addExpenseRow(); // Add first empty expense row
+            
+            // Save initial state
+            saveBookingData();
+        }
+
+        // --- START NEW BOOKING (Clear Everything) ---
+        function startNewBooking() {
+            if (confirm('Are you sure you want to start a new booking? Current data will be cleared.')) {
+                // Clear localStorage
+                localStorage.removeItem(STORAGE_KEY);
+                
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Clear all inputs
+                document.getElementById('custName').value = '';
+                document.getElementById('custPhone').value = '';
+                document.getElementById('startTime').value = '';
+                document.getElementById('endTime').value = '';
+                document.getElementById('startKm').value = '';
+                document.getElementById('endKm').value = '';
+                document.getElementById('remarks').value = '';
+                
+                // Clear expenses
+                document.getElementById('expense-container').innerHTML = '';
+                
+                // Create new booking
+                createNewBooking();
+                
+                alert('New booking created!');
+            }
+        }
+
+        // --- SAVE DATA TO LOCALSTORAGE ---
+        function saveBookingData() {
+            const data = {
+                bookingId: document.getElementById('bookingId').textContent,
+                date: document.getElementById('displayDate').textContent,
+                custName: document.getElementById('custName').value,
+                custPhone: document.getElementById('custPhone').value,
+                startTime: document.getElementById('startTime').value,
+                endTime: document.getElementById('endTime').value,
+                startKm: document.getElementById('startKm').value,
+                endKm: document.getElementById('endKm').value,
+                remarks: document.getElementById('remarks').value,
+                signature: canvas.toDataURL(), // Save signature as image
+                expenses: getExpenses(),
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        // --- LOAD DATA FROM LOCALSTORAGE ---
+        function loadBookingData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : null;
+        }
+
+        // --- RESTORE SAVED DATA ---
+        function restoreBookingData(data) {
+            document.getElementById('bookingId').textContent = data.bookingId;
+            document.getElementById('displayDate').textContent = data.date;
+            document.getElementById('custName').value = data.custName || '';
+            document.getElementById('custPhone').value = data.custPhone || '';
+            document.getElementById('startTime').value = data.startTime || '';
+            document.getElementById('endTime').value = data.endTime || '';
+            document.getElementById('startKm').value = data.startKm || '';
+            document.getElementById('endKm').value = data.endKm || '';
+            document.getElementById('remarks').value = data.remarks || '';
+            
+            // Restore expenses
+            if (data.expenses && data.expenses.length > 0) {
+                data.expenses.forEach(exp => {
+                    addExpenseRow(exp.description, exp.amount);
+                });
+            } else {
+                addExpenseRow(); // Add at least one row
+            }
+            
+            // Restore signature
+            if (data.signature) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = data.signature;
+            }
+        }
+
+        // --- GET CURRENT EXPENSES ---
+        function getExpenses() {
+            const rows = document.querySelectorAll('#expense-container .expense-row');
+            const expenses = [];
+            
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                if (inputs[0].value || inputs[1].value) {
+                    expenses.push({
+                        description: inputs[0].value,
+                        amount: inputs[1].value
+                    });
+                }
+            });
+            
+            return expenses;
+        }
+
+        // --- AUTO-SAVE SETUP ---
+        function setupAutoSave() {
+            const inputs = document.querySelectorAll('input, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(autoSaveTimeout);
+                    autoSaveTimeout = setTimeout(saveBookingData, 1000); // Save 1 second after typing stops
+                });
+            });
+        }
+
+        // --- SHOW RESTORE NOTIFICATION ---
+        function showRestoreNotification() {
+            const badge = document.getElementById('statusBadge');
+            badge.classList.add('active');
+            setTimeout(() => {
+                badge.classList.remove('active');
+            }, 3000);
+        }
+
+        // --- EXPENSE MANAGEMENT ---
+        function addExpenseRow(description = '', amount = '') {
             const container = document.getElementById('expense-container');
             const row = document.createElement('div');
             row.className = 'expense-row';
             row.innerHTML = `
-                <input type="text" placeholder="e.g. Fuel, Toll, Parking" style="flex: 2;">
-                <input type="number" placeholder="0.00" style="flex: 1;">
-                <button class="btn-icon hidden-in-pdf" onclick="this.parentElement.remove()" data-html2canvas-ignore="true">
+                <input type="text" placeholder="e.g. Fuel, Toll, Parking" style="flex: 2;" value="${description}">
+                <input type="number" placeholder="0.00" style="flex: 1;" value="${amount}">
+                <button class="btn-icon hidden-in-pdf" onclick="removeExpenseRow(this)" data-html2canvas-ignore="true">
                     <i class="fas fa-times"></i>
                 </button>
             `;
             container.appendChild(row);
+            
+            // Add auto-save to new inputs
+            row.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', () => {
+                    clearTimeout(autoSaveTimeout);
+                    autoSaveTimeout = setTimeout(saveBookingData, 1000);
+                });
+            });
         }
 
-        // --- 3. SIGNATURE ENGINE ---
-        let canvas, ctx, writingMode = false;
+        function removeExpenseRow(btn) {
+            btn.parentElement.remove();
+            saveBookingData();
+        }
 
+        // --- SIGNATURE ENGINE ---
         function setupCanvas() {
             canvas = document.getElementById("sig-canvas");
             ctx = canvas.getContext("2d");
             
-            // Observer guarantees correct size
             new ResizeObserver(() => {
                 const rect = canvas.getBoundingClientRect();
                 if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     canvas.width = rect.width;
                     canvas.height = rect.height;
+                    ctx.putImageData(imgData, 0, 0);
                     ctx.lineWidth = 2;
                     ctx.lineJoin = 'round';
                     ctx.lineCap = 'round';
@@ -435,7 +636,10 @@
             e.preventDefault();
         }
 
-        function endDraw() { writingMode = false; }
+        function endDraw() { 
+            writingMode = false;
+            saveBookingData(); // Save signature immediately after drawing
+        }
 
         function draw(e) {
             if (!writingMode) return;
@@ -454,9 +658,10 @@
 
         document.getElementById('clear-sig').addEventListener('click', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            saveBookingData();
         });
 
-        // --- 4. PDF GENERATION (Optimized) ---
+        // --- PDF GENERATION ---
         function generatePDF() {
             const element = document.getElementById('printable-area');
             const bookingId = document.getElementById('bookingId').textContent;
@@ -466,15 +671,13 @@
                 filename:     `LogSheet_${bookingId}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                // INTELLIGENT PAGE BREAKING
                 pagebreak:    { mode: 'css' }, 
                 jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' }
             };
 
-            // Lock width for consistency
             const originalStyle = element.style.cssText;
             element.style.width = "794px";
-            element.style.height = "auto"; // Ensure auto height for accurate cutting
+            element.style.height = "auto";
             element.style.margin = "0 auto";
             element.style.boxShadow = "none";
 

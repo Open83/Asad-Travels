@@ -18,7 +18,7 @@
             --text-light: #6b7280;
             --border-color: #e5e7eb;
             --bg-color: #f3f4f6;
-            --paper-width: 794px;
+            --paper-width: 794px; /* A4 Width */
         }
 
         * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -81,7 +81,7 @@
         }
 
         .section {
-            margin-bottom: 15px;
+            margin-bottom: 20px; /* Slightly increased spacing for cleaner look */
         }
 
         .section-header {
@@ -137,57 +137,8 @@
         
         input::placeholder { color: #ccc; font-weight: 400; }
 
-        .expense-table-header {
-            display: flex;
-            background: #f9fafb;
-            padding: 8px 5px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-light);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
-
-        .expense-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 8px;
-            align-items: center;
-        }
-
-        .btn-icon {
-            background: #fee2e2;
-            color: #ef4444;
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .btn-add {
-            width: 100%;
-            padding: 10px;
-            border: 1px dashed #d1d5db;
-            background: #f9fafb;
-            color: var(--text-light);
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 6px;
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
         .signature-area {
-            margin-top: 20px;
+            margin-top: 30px;
             page-break-inside: avoid; 
             break-inside: avoid;
             -webkit-column-break-inside: avoid;
@@ -329,6 +280,10 @@
                         <input type="tel" id="custPhone" placeholder="Enter phone number">
                     </div>
                 </div>
+                <div class="input-group" style="margin-top: 15px;">
+                    <label>Address</label>
+                    <input type="text" id="custAddress" placeholder="Enter full address">
+                </div>
             </div>
 
             <div class="section">
@@ -356,19 +311,17 @@
             </div>
 
             <div class="section">
-                <div class="section-header"><i class="fas fa-receipt"></i> Expenses</div>
-                
-                <div class="expense-table-header">
-                    <div style="flex: 2;">Description</div>
-                    <div style="flex: 1;">Amount (₹)</div>
-                    <div style="width: 30px;"></div>
+                <div class="section-header"><i class="fas fa-clipboard-list"></i> Customer Uses</div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Reading Km</label>
+                        <input type="number" id="useReadingKm" placeholder="0">
+                    </div>
+                    <div class="input-group">
+                        <label>Closing Time</label>
+                        <input type="time" id="useClosingTime">
+                    </div>
                 </div>
-
-                <div id="expense-container"></div>
-
-                <button class="btn-add hidden-in-pdf" onclick="addExpenseRow()" data-html2canvas-ignore="true">
-                    <i class="fas fa-plus-circle"></i> Add New Expense
-                </button>
             </div>
 
             <div class="section">
@@ -408,7 +361,7 @@
         // PERSISTENT STORAGE SYSTEM
         // ============================================
         
-        const STORAGE_KEY = 'dutySlipData';
+        const STORAGE_KEY = 'dutySlipData_v2'; // Changed key to avoid conflict with old data
         let canvas, ctx, writingMode = false;
         let autoSaveTimeout;
 
@@ -443,8 +396,6 @@
             const bookingId = `AST-${randomId}`;
             document.getElementById('bookingId').textContent = bookingId;
             
-            addExpenseRow(); // Add first empty expense row
-            
             // Save initial state
             saveBookingData();
         }
@@ -461,14 +412,14 @@
                 // Clear all inputs
                 document.getElementById('custName').value = '';
                 document.getElementById('custPhone').value = '';
+                document.getElementById('custAddress').value = ''; // Clear Address
                 document.getElementById('startTime').value = '';
                 document.getElementById('endTime').value = '';
                 document.getElementById('startKm').value = '';
                 document.getElementById('endKm').value = '';
+                document.getElementById('useReadingKm').value = ''; // Clear Reading Km
+                document.getElementById('useClosingTime').value = ''; // Clear Closing Time
                 document.getElementById('remarks').value = '';
-                
-                // Clear expenses
-                document.getElementById('expense-container').innerHTML = '';
                 
                 // Create new booking
                 createNewBooking();
@@ -484,13 +435,15 @@
                 date: document.getElementById('displayDate').textContent,
                 custName: document.getElementById('custName').value,
                 custPhone: document.getElementById('custPhone').value,
+                custAddress: document.getElementById('custAddress').value, // Save Address
                 startTime: document.getElementById('startTime').value,
                 endTime: document.getElementById('endTime').value,
                 startKm: document.getElementById('startKm').value,
                 endKm: document.getElementById('endKm').value,
+                useReadingKm: document.getElementById('useReadingKm').value, // Save Reading Km
+                useClosingTime: document.getElementById('useClosingTime').value, // Save Closing Time
                 remarks: document.getElementById('remarks').value,
                 signature: canvas.toDataURL(), // Save signature as image
-                expenses: getExpenses(),
                 timestamp: new Date().toISOString()
             };
             
@@ -509,20 +462,14 @@
             document.getElementById('displayDate').textContent = data.date;
             document.getElementById('custName').value = data.custName || '';
             document.getElementById('custPhone').value = data.custPhone || '';
+            document.getElementById('custAddress').value = data.custAddress || ''; // Restore Address
             document.getElementById('startTime').value = data.startTime || '';
             document.getElementById('endTime').value = data.endTime || '';
             document.getElementById('startKm').value = data.startKm || '';
             document.getElementById('endKm').value = data.endKm || '';
+            document.getElementById('useReadingKm').value = data.useReadingKm || ''; // Restore Reading Km
+            document.getElementById('useClosingTime').value = data.useClosingTime || ''; // Restore Closing Time
             document.getElementById('remarks').value = data.remarks || '';
-            
-            // Restore expenses
-            if (data.expenses && data.expenses.length > 0) {
-                data.expenses.forEach(exp => {
-                    addExpenseRow(exp.description, exp.amount);
-                });
-            } else {
-                addExpenseRow(); // Add at least one row
-            }
             
             // Restore signature
             if (data.signature) {
@@ -532,24 +479,6 @@
                 };
                 img.src = data.signature;
             }
-        }
-
-        // --- GET CURRENT EXPENSES ---
-        function getExpenses() {
-            const rows = document.querySelectorAll('#expense-container .expense-row');
-            const expenses = [];
-            
-            rows.forEach(row => {
-                const inputs = row.querySelectorAll('input');
-                if (inputs[0].value || inputs[1].value) {
-                    expenses.push({
-                        description: inputs[0].value,
-                        amount: inputs[1].value
-                    });
-                }
-            });
-            
-            return expenses;
         }
 
         // --- AUTO-SAVE SETUP ---
@@ -571,34 +500,6 @@
             setTimeout(() => {
                 badge.classList.remove('active');
             }, 3000);
-        }
-
-        // --- EXPENSE MANAGEMENT ---
-        function addExpenseRow(description = '', amount = '') {
-            const container = document.getElementById('expense-container');
-            const row = document.createElement('div');
-            row.className = 'expense-row';
-            row.innerHTML = `
-                <input type="text" placeholder="e.g. Fuel, Toll, Parking" style="flex: 2;" value="${description}">
-                <input type="number" placeholder="0.00" style="flex: 1;" value="${amount}">
-                <button class="btn-icon hidden-in-pdf" onclick="removeExpenseRow(this)" data-html2canvas-ignore="true">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            container.appendChild(row);
-            
-            // Add auto-save to new inputs
-            row.querySelectorAll('input').forEach(input => {
-                input.addEventListener('input', () => {
-                    clearTimeout(autoSaveTimeout);
-                    autoSaveTimeout = setTimeout(saveBookingData, 1000);
-                });
-            });
-        }
-
-        function removeExpenseRow(btn) {
-            btn.parentElement.remove();
-            saveBookingData();
         }
 
         // --- SIGNATURE ENGINE ---

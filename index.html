@@ -3,432 +3,800 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Duty Slip</title>
+    <title>Duty Slip - Journey Management</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
         :root {
             --primary: #2563eb;
             --primary-dark: #1e40af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
             --text-dark: #1f2937;
             --text-light: #6b7280;
-            --border-color: #e5e7eb;
-            --bg-color: #f3f4f6;
-            --paper-width: 794px; /* A4 Width */
+            --border: #e5e7eb;
+            --bg-light: #f9fafb;
         }
 
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            background-color: var(--bg-color);
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            /* FIXED: Increased padding so content scrolls above the floating buttons */
-            padding-bottom: 160px; 
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #f3f4f6;
+            padding: 20px;
+            padding-bottom: 120px;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
         }
 
-        .page-container {
+        .container {
             width: 100%;
-            max-width: var(--paper-width);
-            background: #ffffff;
-            min-height: auto; 
+            max-width: 900px;
+            background: white;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        /* --- COMPACT HEADER --- */
-        .doc-header {
-            background: var(--primary);
+        /* ==================== HEADER ==================== */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 15px 30px;
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .doc-title {
-            font-size: 1.3rem;
+        .header-left h1 {
+            font-size: 1.5rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin: 0;
         }
 
-        .doc-meta {
+        .header-right {
             text-align: right;
-            font-size: 0.8rem;
-            opacity: 0.95;
+            font-size: 0.85rem;
         }
 
-        .meta-row { margin-bottom: 2px; }
-        
-        .id-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 1px 6px;
-            border-radius: 4px;
+        .booking-id {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 6px;
             font-weight: 600;
-            margin-left: 5px;
+            display: inline-block;
+            margin-top: 4px;
         }
 
-        /* --- COMPACT BODY --- */
-        .doc-body {
-            padding: 15px 30px;
+        /* ==================== FORM BODY ==================== */
+        .form-body {
+            padding: 25px 30px;
         }
 
         .section {
-            margin-bottom: 10px;
+            margin-bottom: 25px;
         }
 
-        .section-header {
+        .section-title {
             display: flex;
             align-items: center;
-            border-bottom: 1.5px solid var(--border-color);
-            padding-bottom: 4px;
-            margin-bottom: 8px;
-            color: var(--primary);
+            gap: 8px;
+            font-size: 0.9rem;
             font-weight: 700;
-            font-size: 0.85rem;
+            color: var(--primary);
             text-transform: uppercase;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
         }
-        
-        .section-header i { margin-right: 8px; }
 
-        /* --- 2 COLUMN GRID --- */
+        .section-title i {
+            font-size: 1rem;
+        }
+
+        /* Two-column grid */
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 15px 20px;
         }
 
         .input-group {
-            margin-bottom: 2px;
+            display: flex;
+            flex-direction: column;
         }
 
-        label {
-            display: block;
-            font-size: 0.65rem;
-            color: var(--text-light);
-            text-transform: uppercase;
+        .input-group label {
+            font-size: 0.7rem;
             font-weight: 600;
-            margin-bottom: 1px;
+            text-transform: uppercase;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
         }
 
-        input, select, textarea {
+        .input-group input,
+        .input-group textarea {
             width: 100%;
-            border: 1px solid transparent;
-            border-bottom: 1px solid #d1d5db;
-            background: transparent;
-            font-size: 0.85rem;
+            padding: 6px 0;
+            font-size: 0.9rem;
             color: var(--text-dark);
-            font-weight: 500;
-            padding: 3px 0;
-            border-radius: 0;
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid var(--border);
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color 0.2s;
+            font-weight: 500;
         }
 
-        input:focus, textarea:focus {
+        .input-group input:focus,
+        .input-group textarea:focus {
             border-bottom-color: var(--primary);
         }
-        
-        input::placeholder { color: #ccc; font-weight: 400; }
 
-        /* --- SIGNATURE AREA --- */
-        .signature-area {
-            margin-top: 15px;
-            page-break-inside: avoid; 
-            break-inside: avoid;
-            -webkit-column-break-inside: avoid;
+        .input-group textarea {
+            resize: vertical;
+            min-height: 50px;
+            font-family: inherit;
+        }
+
+        /* Full width for address */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* ==================== JOURNEY TABLE ==================== */
+        .journey-section {
+            margin-top: 20px;
+        }
+
+        .add-day-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 15px;
+            transition: background 0.2s;
+        }
+
+        .add-day-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .journey-table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+
+        .journey-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .journey-table thead {
+            background: var(--bg-light);
+        }
+
+        .journey-table th {
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--border);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .journey-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .journey-table input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .journey-table input:focus {
+            border-color: var(--primary);
+        }
+
+        .remove-day-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: opacity 0.2s;
+        }
+
+        .remove-day-btn:hover {
+            opacity: 0.8;
+        }
+
+        .total-km {
+            font-weight: 700;
+            color: var(--primary);
+            text-align: right;
+            margin-top: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* ==================== SIGNATURE ==================== */
+        .signature-section {
+            margin-top: 25px;
         }
 
         .canvas-wrapper {
-            border: 2px dashed #e5e7eb;
+            border: 2px dashed var(--border);
             border-radius: 8px;
-            background: #fff;
-            height: 85px;
+            background: white;
+            height: 100px;
             position: relative;
             overflow: hidden;
+            margin-bottom: 8px;
         }
 
-        canvas {
+        #sig-canvas {
             display: block;
             width: 100%;
             height: 100%;
             cursor: crosshair;
         }
 
-        /* FIXED: Improved clickable area for Clear Signature */
         .clear-sig-btn {
-            display: block;
-            width: 100%;
-            text-align: right;
-            font-size: 0.75rem;
-            color: #ef4444;
             background: none;
             border: none;
+            color: var(--danger);
+            font-size: 0.8rem;
             text-decoration: underline;
             cursor: pointer;
-            padding: 8px 0; /* Larger tap area */
-            margin-top: 2px;
-            position: relative;
-            z-index: 10;
+            padding: 8px;
+            display: inline-block;
         }
 
+        /* ==================== FLOATING ACTIONS ==================== */
         .floating-actions {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 999;
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            z-index: 1000;
         }
 
-        .hidden-in-pdf { display: inline-flex !important; }
-        
-        /* Specific override for the block-level clear button to hide it in PDF */
-        button.hidden-in-pdf { display: block !important; }
+        .btn {
+            border: none;
+            padding: 14px 28px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
 
         .btn-download {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white; border: none; padding: 12px 24px; border-radius: 50px;
-            font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
         }
 
-        .btn-new-booking {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white; border: none; padding: 12px 24px; border-radius: 50px;
-            font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
-            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+        .btn-new {
+            background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
+            color: white;
         }
 
-        .btn-download:active, .btn-new-booking:active { transform: scale(0.98); }
-
-        .status-badge {
-            position: absolute; top: 10px; right: 10px; background: #10b981; color: white;
-            padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; display: none;
+        /* ==================== HIDE IN PDF ==================== */
+        .hide-in-pdf {
+            display: block !important;
         }
-        .status-badge.active { display: block; }
 
-        @media (max-width: 600px) {
-            .page-container { width: 100%; box-shadow: none; }
-            .doc-header { padding: 15px; flex-direction: column; align-items: flex-start; gap: 5px; }
-            .doc-meta { text-align: left; }
-            .doc-body { padding: 15px; }
-            .grid-2 { grid-template-columns: 1fr; gap: 10px; }
-            .floating-actions { flex-direction: column; width: 90%; }
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                padding-bottom: 120px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+                padding: 15px 20px;
+            }
+
+            .header-left h1 {
+                font-size: 1.2rem;
+            }
+
+            .header-right {
+                text-align: center;
+            }
+
+            .form-body {
+                padding: 20px 15px;
+            }
+
+            .journey-table {
+                font-size: 0.75rem;
+            }
+
+            .journey-table th,
+            .journey-table td {
+                padding: 6px 4px;
+            }
+
+            .journey-table input {
+                padding: 4px 6px;
+                font-size: 0.75rem;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.85rem;
+            }
+
+            .floating-actions {
+                flex-direction: column;
+                width: calc(100% - 20px);
+                max-width: 300px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-
-    <div class="page-container" id="printable-area">
-        
-        <div class="status-badge" id="statusBadge">
-            <i class="fas fa-check-circle"></i> Restored
-        </div>
-
-        <div class="doc-header">
-            <h1 class="doc-title">Duty Slip</h1>
-            <div class="doc-meta">
-                <div class="meta-row">Date: <span id="displayDate" style="font-weight:600"></span></div>
-                <div class="meta-row">ID: <span id="bookingId" class="id-badge">...</span></div>
+    <!-- MAIN FORM CONTAINER -->
+    <div class="container" id="form-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1><i class="fas fa-file-invoice"></i> Duty Slip</h1>
+            </div>
+            <div class="header-right">
+                <div>Date: <span id="displayDate"></span></div>
+                <div class="booking-id">ID: <span id="bookingId"></span></div>
             </div>
         </div>
 
-        <div class="doc-body">
-            
+        <!-- Form Body -->
+        <div class="form-body">
+            <!-- Customer Details -->
             <div class="section">
-                <div class="section-header"><i class="fas fa-user"></i> Customer Details</div>
+                <div class="section-title">
+                    <i class="fas fa-user"></i>
+                    Customer Details
+                </div>
                 <div class="grid-2">
                     <div class="input-group">
                         <label>Customer Name</label>
-                        <input type="text" id="custName" placeholder="Enter full name">
+                        <input type="text" id="custName" placeholder="Enter name">
                     </div>
                     <div class="input-group">
                         <label>Phone Number</label>
-                        <input type="tel" id="custPhone" placeholder="Enter phone number">
+                        <input type="tel" id="custPhone" placeholder="Enter phone">
                     </div>
-                </div>
-                <div class="input-group" style="margin-top: 5px;">
-                    <label>Address</label>
-                    <input type="text" id="custAddress" placeholder="Enter full address">
+                    <div class="input-group full-width">
+                        <label>Address</label>
+                        <textarea id="custAddress" placeholder="Enter address" rows="2"></textarea>
+                    </div>
                 </div>
             </div>
 
+            <!-- Driver & Vehicle Details -->
             <div class="section">
-                <div class="section-header"><i class="fas fa-id-card"></i> Driver Details</div>
+                <div class="section-title">
+                    <i class="fas fa-car"></i>
+                    Driver & Vehicle Details
+                </div>
                 <div class="grid-2">
                     <div class="input-group">
                         <label>Driver Name</label>
-                        <input type="text" id="driverName" placeholder="Enter driver name">
+                        <input type="text" id="driverName" placeholder="Enter name">
                     </div>
                     <div class="input-group">
-                        <label>Driver Number</label>
-                        <input type="tel" id="driverPhone" placeholder="Enter driver number">
+                        <label>Driver Phone</label>
+                        <input type="tel" id="driverPhone" placeholder="Enter phone">
                     </div>
-                </div>
-                <div class="grid-2" style="margin-top: 5px;">
                     <div class="input-group">
                         <label>Car Type</label>
-                        <input type="text" id="carType" placeholder="e.g. Sedan">
+                        <input type="text" id="carType" placeholder="e.g., Sedan, SUV">
                     </div>
                     <div class="input-group">
                         <label>Car Number</label>
-                        <input type="text" id="carNumber" placeholder="e.g. MH-01-AB-1234">
+                        <input type="text" id="carNumber" placeholder="e.g., MH-01-AB-1234">
                     </div>
                 </div>
             </div>
 
+            <!-- Journey Details -->
+            <div class="section journey-section">
+                <div class="section-title">
+                    <i class="fas fa-route"></i>
+                    Journey Details (Day-wise)
+                </div>
+                
+                <button class="add-day-btn hide-in-pdf" onclick="addJourneyDay()">
+                    <i class="fas fa-plus"></i> Add Day
+                </button>
+
+                <div class="journey-table-wrapper">
+                    <table class="journey-table" id="journeyTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Day</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Starting KM</th>
+                                <th>Ending KM</th>
+                                <th style="width: 80px;" class="hide-in-pdf">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="journeyTableBody">
+                            <!-- Journey days will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="total-km" id="totalKm">Total KM: 0</div>
+            </div>
+
+            <!-- Remarks -->
             <div class="section">
-                <div class="section-header"><i class="fas fa-route"></i> Journey Details</div>
-                <div class="grid-2">
-                    <div class="input-group">
-                        <label>Start Time</label>
-                        <input type="datetime-local" id="startTime">
-                    </div>
-                    <div class="input-group">
-                        <label>End Time</label>
-                        <input type="datetime-local" id="endTime">
-                    </div>
+                <div class="section-title">
+                    <i class="fas fa-comment"></i>
+                    Remarks
                 </div>
-                <div class="grid-2" style="margin-top: 5px;">
-                    <div class="input-group">
-                        <label>Start KM Reading</label>
-                        <input type="number" id="startKm" placeholder="0">
-                    </div>
-                    <div class="input-group">
-                        <label>End KM Reading</label>
-                        <input type="number" id="endKm" placeholder="0">
-                    </div>
+                <div class="input-group">
+                    <textarea id="remarks" placeholder="Additional notes..." rows="3"></textarea>
                 </div>
             </div>
 
-            <div class="section">
-                <div class="section-header"><i class="fas fa-clipboard-list"></i> Customer Uses</div>
-                <div class="grid-2">
-                    <div class="input-group">
-                        <label>Reading Km</label>
-                        <input type="number" id="useReadingKm" placeholder="0">
-                    </div>
-                    <div class="input-group">
-                        <label>Closing Time</label>
-                        <input type="time" id="useClosingTime">
-                    </div>
+            <!-- Signature -->
+            <div class="section signature-section">
+                <div class="section-title">
+                    <i class="fas fa-signature"></i>
+                    Customer Signature
                 </div>
-            </div>
-
-            <div class="section">
-                <div class="section-header"><i class="fas fa-comment-alt"></i> Remarks</div>
-                <textarea id="remarks" rows="1" placeholder="Notes..."></textarea>
-            </div>
-
-            <div class="signature-area">
-                <label style="margin-bottom: 4px; display:block;">Driver / Customer Signature</label>
                 <div class="canvas-wrapper">
                     <canvas id="sig-canvas"></canvas>
                 </div>
-                <button class="clear-sig-btn hidden-in-pdf" id="clear-sig" data-html2canvas-ignore="true">
-                    Clear Signature
+                <button class="clear-sig-btn hide-in-pdf" onclick="clearSignature()">
+                    <i class="fas fa-eraser"></i> Clear Signature
                 </button>
             </div>
-
         </div>
-        
-        <div style="text-align: center; font-size: 0.65rem; color: #9ca3af; padding-bottom: 10px; margin-top: 5px;">
-            System Generated Invoice • Valid without physical seal
-        </div>
-
     </div>
 
-    <div class="floating-actions">
-        <button class="btn-new-booking" onclick="startNewBooking()">
-            <i class="fas fa-plus"></i> New
+    <!-- Floating Action Buttons -->
+    <div class="floating-actions hide-in-pdf">
+        <button class="btn btn-download" onclick="downloadPDF()">
+            <i class="fas fa-download"></i> Download PDF
         </button>
-        <button class="btn-download" onclick="generatePDF()">
-            <i class="fas fa-file-pdf"></i> Download PDF
+        <button class="btn btn-new" onclick="resetForm()">
+            <i class="fas fa-plus"></i> New Booking
         </button>
     </div>
 
     <script>
-        // ============================================
-        // DATA & LOGIC
-        // ============================================
-        
-        const STORAGE_KEY = 'dutySlipData_v5'; 
-        let canvas, ctx, writingMode = false;
+        // ==================== GLOBAL VARIABLES ====================
+        const STORAGE_KEY = 'dutySlipData';
+        let canvas, ctx;
+        let isDrawing = false;
         let autoSaveTimeout;
+        let journeyDayCount = 0;
 
-        window.onload = function() {
+        // ==================== INITIALIZATION ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        function initializeApp() {
             setupCanvas();
-            const savedData = loadBookingData();
+            
+            const savedData = loadSavedData();
             if (savedData) {
-                restoreBookingData(savedData);
-                showRestoreNotification();
+                restoreData(savedData);
             } else {
-                createNewBooking();
+                generateNewBooking();
+                addJourneyDay();
             }
+            
             setupAutoSave();
-        };
-
-        function createNewBooking() {
-            const today = new Date().toLocaleDateString('en-IN', { 
-                day: 'numeric', month: 'short', year: 'numeric' 
-            });
-            document.getElementById('displayDate').textContent = today;
-            const randomId = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('bookingId').textContent = `AST-${randomId}`;
-            saveBookingData();
         }
 
-        function startNewBooking() {
-            if (confirm('Start new booking? Current data will be cleared.')) {
-                localStorage.removeItem(STORAGE_KEY);
+        // ==================== BOOKING MANAGEMENT ====================
+        function generateNewBooking() {
+            // Generate booking ID
+            const id = 'DS' + Date.now().toString().slice(-8);
+            document.getElementById('bookingId').textContent = id;
+            
+            // Set current date
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+            document.getElementById('displayDate').textContent = dateStr;
+        }
+
+        function resetForm() {
+            if (confirm('Create new booking? This will clear all current data.')) {
+                // Clear all inputs
+                document.querySelectorAll('input, textarea').forEach(el => {
+                    if (el.type !== 'datetime-local' && el.type !== 'number') {
+                        el.value = '';
+                    }
+                });
+                
+                // Clear signature
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                document.querySelectorAll('input, textarea').forEach(el => el.value = '');
-                createNewBooking();
+                
+                // Clear journey table
+                document.getElementById('journeyTableBody').innerHTML = '';
+                journeyDayCount = 0;
+                
+                // Create new booking
+                generateNewBooking();
+                addJourneyDay();
+                
+                // Clear storage
+                localStorage.removeItem(STORAGE_KEY);
             }
         }
 
-        function saveBookingData() {
-            const data = {
-                bookingId: document.getElementById('bookingId').textContent,
-                date: document.getElementById('displayDate').textContent,
-                custName: document.getElementById('custName').value,
-                custPhone: document.getElementById('custPhone').value,
-                custAddress: document.getElementById('custAddress').value,
-                driverName: document.getElementById('driverName').value,
-                driverPhone: document.getElementById('driverPhone').value,
-                carType: document.getElementById('carType').value,
-                carNumber: document.getElementById('carNumber').value,
-                startTime: document.getElementById('startTime').value,
-                endTime: document.getElementById('endTime').value,
-                startKm: document.getElementById('startKm').value,
-                endKm: document.getElementById('endKm').value,
-                useReadingKm: document.getElementById('useReadingKm').value,
-                useClosingTime: document.getElementById('useClosingTime').value,
-                remarks: document.getElementById('remarks').value,
-                signature: canvas.toDataURL(),
-                timestamp: new Date().toISOString()
+        // ==================== JOURNEY DAY MANAGEMENT ====================
+        function addJourneyDay() {
+            journeyDayCount++;
+            const tbody = document.getElementById('journeyTableBody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td style="text-align: center; font-weight: 600;">${journeyDayCount}</td>
+                <td><input type="datetime-local" class="journey-input" onchange="calculateTotal(); saveData();"></td>
+                <td><input type="datetime-local" class="journey-input" onchange="calculateTotal(); saveData();"></td>
+                <td><input type="number" class="journey-input starting-km" onchange="calculateTotal(); saveData();" placeholder="0" step="0.01"></td>
+                <td><input type="number" class="journey-input ending-km" onchange="calculateTotal(); saveData();" placeholder="0" step="0.01"></td>
+                <td class="hide-in-pdf" style="text-align: center;">
+                    <button class="remove-day-btn" onclick="removeJourneyDay(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+            calculateTotal();
+            saveData();
+        }
+
+        function removeJourneyDay(btn) {
+            const tbody = document.getElementById('journeyTableBody');
+            if (tbody.children.length > 1) {
+                btn.closest('tr').remove();
+                updateDayNumbers();
+                calculateTotal();
+                saveData();
+            } else {
+                alert('At least one journey day is required!');
+            }
+        }
+
+        function updateDayNumbers() {
+            const rows = document.getElementById('journeyTableBody').querySelectorAll('tr');
+            journeyDayCount = rows.length;
+            rows.forEach((row, index) => {
+                row.querySelector('td:first-child').textContent = index + 1;
+            });
+        }
+
+        function calculateTotal() {
+            let totalKm = 0;
+            const rows = document.getElementById('journeyTableBody').querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const startKm = parseFloat(row.querySelector('.starting-km').value) || 0;
+                const endKm = parseFloat(row.querySelector('.ending-km').value) || 0;
+                const dayKm = endKm - startKm;
+                
+                if (dayKm > 0) {
+                    totalKm += dayKm;
+                }
+            });
+            
+            document.getElementById('totalKm').textContent = `Total KM: ${totalKm.toFixed(2)}`;
+        }
+
+        // ==================== SIGNATURE HANDLING ====================
+        function setupCanvas() {
+            canvas = document.getElementById('sig-canvas');
+            ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            const resizeCanvas = () => {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                
+                // Save existing signature
+                const imgData = canvas.toDataURL();
+                
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+                
+                // Set drawing properties
+                ctx.lineWidth = 2;
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#2563eb';
+                
+                // Restore signature
+                if (imgData && imgData !== 'data:,') {
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = imgData;
+                }
             };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Mouse events
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch events
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startDrawing(e);
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                draw(e);
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                stopDrawing();
+            }, { passive: false });
         }
 
-        function loadBookingData() {
+        function startDrawing(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            const pos = getPosition(e);
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            const pos = getPosition(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            if (isDrawing) {
+                isDrawing = false;
+                saveData();
+            }
+        }
+
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            saveData();
+        }
+
+        // ==================== DATA PERSISTENCE ====================
+        function saveData() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                const journeyData = [];
+                const rows = document.getElementById('journeyTableBody').querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll('.journey-input');
+                    journeyData.push({
+                        startTime: inputs[0].value,
+                        endTime: inputs[1].value,
+                        startKm: inputs[2].value,
+                        endKm: inputs[3].value
+                    });
+                });
+                
+                const data = {
+                    bookingId: document.getElementById('bookingId').textContent,
+                    displayDate: document.getElementById('displayDate').textContent,
+                    custName: document.getElementById('custName').value,
+                    custPhone: document.getElementById('custPhone').value,
+                    custAddress: document.getElementById('custAddress').value,
+                    driverName: document.getElementById('driverName').value,
+                    driverPhone: document.getElementById('driverPhone').value,
+                    carType: document.getElementById('carType').value,
+                    carNumber: document.getElementById('carNumber').value,
+                    remarks: document.getElementById('remarks').value,
+                    journeyData: journeyData,
+                    signature: canvas.toDataURL(),
+                    timestamp: new Date().toISOString()
+                };
+                
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            }, 500);
+        }
+
+        function loadSavedData() {
             const saved = localStorage.getItem(STORAGE_KEY);
-            return saved ? JSON.parse(saved) : null;
+            if (!saved) return null;
+            
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('Error loading saved data:', e);
+                return null;
+            }
         }
 
-        function restoreBookingData(data) {
-            document.getElementById('bookingId').textContent = data.bookingId;
-            document.getElementById('displayDate').textContent = data.date;
+        function restoreData(data) {
+            // Restore basic fields
+            document.getElementById('bookingId').textContent = data.bookingId || '';
+            document.getElementById('displayDate').textContent = data.displayDate || '';
             document.getElementById('custName').value = data.custName || '';
             document.getElementById('custPhone').value = data.custPhone || '';
             document.getElementById('custAddress').value = data.custAddress || '';
@@ -436,164 +804,330 @@
             document.getElementById('driverPhone').value = data.driverPhone || '';
             document.getElementById('carType').value = data.carType || '';
             document.getElementById('carNumber').value = data.carNumber || '';
-            document.getElementById('startTime').value = data.startTime || '';
-            document.getElementById('endTime').value = data.endTime || '';
-            document.getElementById('startKm').value = data.startKm || '';
-            document.getElementById('endKm').value = data.endKm || '';
-            document.getElementById('useReadingKm').value = data.useReadingKm || '';
-            document.getElementById('useClosingTime').value = data.useClosingTime || '';
             document.getElementById('remarks').value = data.remarks || '';
             
-            if (data.signature) {
+            // Restore journey data
+            if (data.journeyData && data.journeyData.length > 0) {
+                document.getElementById('journeyTableBody').innerHTML = '';
+                journeyDayCount = 0;
+                
+                data.journeyData.forEach(day => {
+                    journeyDayCount++;
+                    const tbody = document.getElementById('journeyTableBody');
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td style="text-align: center; font-weight: 600;">${journeyDayCount}</td>
+                        <td><input type="datetime-local" class="journey-input" value="${day.startTime || ''}" onchange="calculateTotal(); saveData();"></td>
+                        <td><input type="datetime-local" class="journey-input" value="${day.endTime || ''}" onchange="calculateTotal(); saveData();"></td>
+                        <td><input type="number" class="journey-input starting-km" value="${day.startKm || ''}" onchange="calculateTotal(); saveData();" placeholder="0" step="0.01"></td>
+                        <td><input type="number" class="journey-input ending-km" value="${day.endKm || ''}" onchange="calculateTotal(); saveData();" placeholder="0" step="0.01"></td>
+                        <td class="hide-in-pdf" style="text-align: center;">
+                            <button class="remove-day-btn" onclick="removeJourneyDay(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                
+                calculateTotal();
+            }
+            
+            // Restore signature
+            if (data.signature && data.signature !== 'data:,') {
                 const img = new Image();
-                img.onload = function() { ctx.drawImage(img, 0, 0); };
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                };
                 img.src = data.signature;
             }
         }
 
         function setupAutoSave() {
             document.querySelectorAll('input, textarea').forEach(input => {
-                input.addEventListener('input', () => {
-                    clearTimeout(autoSaveTimeout);
-                    autoSaveTimeout = setTimeout(saveBookingData, 1000);
-                });
+                input.addEventListener('input', saveData);
             });
         }
 
-        function showRestoreNotification() {
-            const badge = document.getElementById('statusBadge');
-            badge.classList.add('active');
-            setTimeout(() => badge.classList.remove('active'), 3000);
-        }
+        // ==================== PDF GENERATION ====================
+        async function downloadPDF() {
+            // Show loading state
+            const downloadBtn = document.querySelector('.btn-download');
+            const originalHTML = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            downloadBtn.disabled = true;
 
-        // --- SIGNATURE (BLUE) ---
-        function setupCanvas() {
-            canvas = document.getElementById("sig-canvas");
-            ctx = canvas.getContext("2d");
-            
-            new ResizeObserver(() => {
-                const rect = canvas.getBoundingClientRect();
-                if (canvas.width !== rect.width || canvas.height !== rect.height) {
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    canvas.width = rect.width;
-                    canvas.height = rect.height;
-                    ctx.putImageData(imgData, 0, 0);
-                    ctx.lineWidth = 2;
-                    ctx.lineJoin = 'round';
-                    ctx.lineCap = 'round';
-                    ctx.strokeStyle = '#2563eb'; // Blue Signature
-                }
-            }).observe(canvas.parentElement);
+            try {
+                // Collect all data
+                const bookingId = document.getElementById('bookingId').textContent;
+                const displayDate = document.getElementById('displayDate').textContent;
+                const custName = document.getElementById('custName').value;
+                const custPhone = document.getElementById('custPhone').value;
+                const custAddress = document.getElementById('custAddress').value;
+                const driverName = document.getElementById('driverName').value;
+                const driverPhone = document.getElementById('driverPhone').value;
+                const carType = document.getElementById('carType').value;
+                const carNumber = document.getElementById('carNumber').value;
+                const remarks = document.getElementById('remarks').value;
+                
+                // Collect journey data
+                const journeyData = [];
+                const rows = document.getElementById('journeyTableBody').querySelectorAll('tr');
+                rows.forEach((row, index) => {
+                    const inputs = row.querySelectorAll('.journey-input');
+                    journeyData.push({
+                        day: index + 1,
+                        startTime: inputs[0].value,
+                        endTime: inputs[1].value,
+                        startKm: inputs[2].value,
+                        endKm: inputs[3].value
+                    });
+                });
+                
+                // Calculate total
+                let totalKm = 0;
+                journeyData.forEach(day => {
+                    const start = parseFloat(day.startKm) || 0;
+                    const end = parseFloat(day.endKm) || 0;
+                    if (end > start) {
+                        totalKm += (end - start);
+                    }
+                });
+                
+                // Get signature
+                const signatureData = canvas.toDataURL();
+                
+                // Determine pagination
+                const firstPageRows = journeyData.slice(0, 4);
+                const secondPageRows = journeyData.length > 4 ? journeyData.slice(4) : [];
+                
+                // Initialize jsPDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'px',
+                    format: [1600, 990]
+                });
 
-            ['mousedown', 'touchstart'].forEach(e => canvas.addEventListener(e, startDraw, {passive: false}));
-            ['mouseup', 'touchend'].forEach(e => canvas.addEventListener(e, endDraw, {passive: false}));
-            ['mousemove', 'touchmove'].forEach(e => canvas.addEventListener(e, draw, {passive: false}));
-        }
-
-        function startDraw(e) {
-            writingMode = true;
-            ctx.beginPath();
-            const pos = getPos(e);
-            ctx.moveTo(pos.x, pos.y);
-            e.preventDefault();
-        }
-        function endDraw() { writingMode = false; saveBookingData(); }
-        function draw(e) {
-            if (!writingMode) return;
-            const pos = getPos(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            e.preventDefault();
-        }
-        function getPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: clientX - rect.left, y: clientY - rect.top };
-        }
-        document.getElementById('clear-sig').addEventListener('click', () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            saveBookingData();
-        });
-
-        // --- PDF GENERATION (12HR + 1 Page Layout) ---
-        function generatePDF() {
-            const element = document.getElementById('printable-area');
-            const bookingId = document.getElementById('bookingId').textContent;
-
-            // 12-Hour Format Helper
-            const inputsToFormat = [
-                { id: 'startTime', type: 'datetime' },
-                { id: 'endTime', type: 'datetime' },
-                { id: 'useClosingTime', type: 'time' }
-            ];
-
-            const originalDisplayStates = [];
-
-            inputsToFormat.forEach(item => {
-                const input = document.getElementById(item.id);
-                if(input) {
-                    originalDisplayStates.push({ el: input, display: input.style.display });
-                    const span = document.createElement('div');
-                    span.style.fontSize = '0.85rem';
-                    span.style.fontWeight = '500';
-                    span.style.color = '#1f2937';
-                    span.style.padding = '3px 0';
-                    span.style.borderBottom = '1px solid #d1d5db';
+                // Create first page
+                const firstPage = await createPDFPage(
+                    bookingId, displayDate, custName, custPhone, custAddress,
+                    driverName, driverPhone, carType, carNumber, remarks,
+                    firstPageRows, secondPageRows.length === 0 ? totalKm : null, signatureData
+                );
+                
+                const canvas1 = await html2canvas(firstPage, {
+                    width: 1600,
+                    height: 990,
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData1 = canvas1.toDataURL('image/jpeg', 0.98);
+                pdf.addImage(imgData1, 'JPEG', 0, 0, 1600, 990);
+                
+                // Create second page if needed
+                if (secondPageRows.length > 0) {
+                    const secondPage = await createPDFPage(
+                        bookingId, displayDate, custName, custPhone, custAddress,
+                        driverName, driverPhone, carType, carNumber, remarks,
+                        secondPageRows, totalKm, signatureData, true
+                    );
                     
-                    if (input.value) {
-                        if (item.type === 'datetime') {
-                            const dateObj = new Date(input.value);
-                            span.textContent = dateObj.toLocaleString('en-IN', {
-                                day: 'numeric', month: 'short', year: 'numeric',
-                                hour: 'numeric', minute: 'numeric', hour12: true
-                            }).toUpperCase();
-                        } else if (item.type === 'time') {
-                            const [h, m] = input.value.split(':');
-                            const dateObj = new Date();
-                            dateObj.setHours(h);
-                            dateObj.setMinutes(m);
-                            span.textContent = dateObj.toLocaleTimeString('en-IN', {
-                                hour: 'numeric', minute: 'numeric', hour12: true
-                            }).toUpperCase();
-                        }
-                    } else {
-                        span.textContent = '';
-                        span.style.height = '20px';
-                    }
-
-                    input.style.display = 'none';
-                    input.parentNode.insertBefore(span, input.nextSibling);
-                    item.span = span;
+                    const canvas2 = await html2canvas(secondPage, {
+                        width: 1600,
+                        height: 990,
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff'
+                    });
+                    
+                    const imgData2 = canvas2.toDataURL('image/jpeg', 0.98);
+                    pdf.addPage([1600, 990], 'landscape');
+                    pdf.addImage(imgData2, 'JPEG', 0, 0, 1600, 990);
                 }
-            });
+                
+                // Save PDF
+                pdf.save(`DutySlip_${bookingId}.pdf`);
+                
+                // Clean up
+                document.body.removeChild(firstPage);
+                if (secondPageRows.length > 0) {
+                    document.body.removeChild(document.querySelector('.pdf-page:last-child'));
+                }
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                alert('Error generating PDF. Please try again.');
+            } finally {
+                // Restore button
+                downloadBtn.innerHTML = originalHTML;
+                downloadBtn.disabled = false;
+            }
+        }
 
-            // Generate PDF
-            const opt = {
-                margin:       0,
-                filename:     `LogSheet_${bookingId}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                pagebreak:    { mode: 'css' }, 
-                jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' }
-            };
-
-            const originalStyle = element.style.cssText;
-            element.style.width = "794px";
-            element.style.height = "auto"; 
-            element.style.margin = "0 auto";
-            element.style.boxShadow = "none";
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                // Restore original state
-                element.style.cssText = originalStyle;
-                inputsToFormat.forEach((item, index) => {
-                    const input = document.getElementById(item.id);
-                    if(input) {
-                        input.style.display = originalDisplayStates[index].display;
-                        if (item.span) item.span.remove();
-                    }
+        async function createPDFPage(bookingId, displayDate, custName, custPhone, custAddress, 
+                               driverName, driverPhone, carType, carNumber, remarks,
+                               journeyRows, totalKm, signatureData, isSecondPage = false) {
+            
+            return new Promise((resolve) => {
+                const page = document.createElement('div');
+                page.className = 'pdf-page';
+                page.style.width = '1600px';
+                page.style.height = '990px';
+                page.style.padding = '40px';
+                page.style.background = 'white';
+                page.style.boxSizing = 'border-box';
+                page.style.fontFamily = 'Inter, sans-serif';
+                page.style.position = 'absolute';
+                page.style.left = '-9999px';
+                page.style.top = '0';
+                
+                // Format datetime to 12-hour format
+                const formatDateTime = (datetime) => {
+                    if (!datetime) return '-';
+                    const date = new Date(datetime);
+                    return date.toLocaleString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    }).toUpperCase();
+                };
+                
+                // Build journey table HTML
+                let journeyTableHTML = '';
+                journeyRows.forEach(day => {
+                    const startKm = parseFloat(day.startKm) || 0;
+                    const endKm = parseFloat(day.endKm) || 0;
+                    
+                    journeyTableHTML += `
+                        <tr>
+                            <td style="text-align: center; font-weight: 600; padding: 12px 10px; border-bottom: 1px solid #e5e7eb;">${day.day}</td>
+                            <td style="padding: 12px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${formatDateTime(day.startTime)}</td>
+                            <td style="padding: 12px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${formatDateTime(day.endTime)}</td>
+                            <td style="padding: 12px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${startKm}</td>
+                            <td style="padding: 12px 10px; border-bottom: 1px solid #e5e7eb; font-weight: 500;">${endKm}</td>
+                        </tr>
+                    `;
                 });
+                
+                page.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; margin-bottom: 35px; border-radius: 10px;">
+                        <div>
+                            <h1 style="font-size: 2rem; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">
+                                📋 DUTY SLIP
+                            </h1>
+                        </div>
+                        <div style="text-align: right; font-size: 1.1rem;">
+                            <div style="margin-bottom: 8px;">Date: ${displayDate}</div>
+                            <div style="background: rgba(255,255,255,0.25); padding: 8px 18px; border-radius: 8px; font-weight: 700; display: inline-block;">
+                                ID: ${bookingId}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${!isSecondPage ? `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 35px 50px; margin-bottom: 35px;">
+                        <div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+                                👤 Customer Details
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Customer Name</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custName || '-'}</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Phone Number</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custPhone || '-'}</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Address</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custAddress || '-'}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+                                🚗 Driver & Vehicle Details
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Driver Name</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${driverName || '-'}</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Driver Phone</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${driverPhone || '-'}</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Car Type</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${carType || '-'}</div>
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Car Number</label>
+                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${carNumber || '-'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="text-align: center; color: #6b7280; margin-bottom: 25px; font-size: 1.2rem; font-weight: 600; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                        📄 Continued from previous page...
+                    </div>
+                    `}
+                    
+                    <div style="margin-bottom: 30px;">
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+                            🗺️ Journey Details ${isSecondPage ? '(Continued)' : ''}
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                            <thead>
+                                <tr style="background: #f9fafb;">
+                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase; width: 80px;">Day</th>
+                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">Start Time</th>
+                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">End Time</th>
+                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">Starting KM</th>
+                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">Ending KM</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${journeyTableHTML}
+                            </tbody>
+                        </table>
+                        ${totalKm !== null ? `
+                            <div style="font-weight: 700; color: #2563eb; text-align: right; margin-top: 18px; font-size: 1.4rem; padding: 12px 15px; background: #eff6ff; border-radius: 8px; display: inline-block; float: right;">
+                                Total KM: ${totalKm.toFixed(2)}
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${!isSecondPage && remarks ? `
+                    <div style="margin-top: 35px; clear: both;">
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            💬 Remarks
+                        </div>
+                        <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 12px 0; border-bottom: 1px solid #e5e7eb;">${remarks}</div>
+                    </div>
+                    ` : ''}
+                    
+                    ${(totalKm !== null || isSecondPage) ? `
+                    <div style="margin-top: 35px; padding-top: 25px; border-top: 2.5px solid #e5e7eb; clear: both;">
+                        <div style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 12px;">
+                            ✍️ Customer Signature:
+                        </div>
+                        ${signatureData && signatureData !== 'data:,' ? 
+                            `<img src="${signatureData}" style="max-width: 350px; max-height: 90px; border: 2px solid #e5e7eb; border-radius: 8px; padding: 12px; background: white;" alt="Signature">` : 
+                            '<div style="color: #9ca3af; font-style: italic; font-size: 1rem;">No signature provided</div>'
+                        }
+                    </div>
+                    ` : ''}
+                `;
+                
+                document.body.appendChild(page);
+                
+                // Wait for fonts and images to load
+                setTimeout(() => resolve(page), 100);
             });
         }
     </script>

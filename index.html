@@ -485,6 +485,24 @@
                 <div class="total-km" id="totalKm">Total KM: 0</div>
             </div>
 
+            <!-- Customer Uses -->
+            <div class="section">
+                <div class="section-title">
+                    <i class="fas fa-clipboard-list"></i>
+                    Customer Uses
+                </div>
+                <div class="grid-2">
+                    <div class="input-group">
+                        <label>Reading KM</label>
+                        <input type="number" id="useReadingKm" placeholder="0" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Closing Time</label>
+                        <input type="time" id="useClosingTime">
+                    </div>
+                </div>
+            </div>
+
             <!-- Remarks -->
             <div class="section">
                 <div class="section-title">
@@ -569,7 +587,7 @@
             if (confirm('Create new booking? This will clear all current data.')) {
                 // Clear all inputs
                 document.querySelectorAll('input, textarea').forEach(el => {
-                    if (el.type !== 'datetime-local' && el.type !== 'number') {
+                    if (el.type !== 'datetime-local' && el.type !== 'number' && el.type !== 'time') {
                         el.value = '';
                     }
                 });
@@ -641,9 +659,8 @@
                 const endKm = parseFloat(row.querySelector('.ending-km').value) || 0;
                 const dayKm = endKm - startKm;
                 
-                if (dayKm > 0) {
-                    totalKm += dayKm;
-                }
+                // Add to total even if it's 0 or negative (to show accurate calculation)
+                totalKm += dayKm;
             });
             
             document.getElementById('totalKm').textContent = `Total KM: ${totalKm.toFixed(2)}`;
@@ -670,7 +687,7 @@
                 ctx.lineCap = 'round';
                 ctx.strokeStyle = '#2563eb';
                 
-                // Restore signature
+                // Restore signature if it exists
                 if (imgData && imgData !== 'data:,') {
                     const img = new Image();
                     img.onload = () => {
@@ -771,6 +788,8 @@
                     driverPhone: document.getElementById('driverPhone').value,
                     carType: document.getElementById('carType').value,
                     carNumber: document.getElementById('carNumber').value,
+                    useReadingKm: document.getElementById('useReadingKm').value,
+                    useClosingTime: document.getElementById('useClosingTime').value,
                     remarks: document.getElementById('remarks').value,
                     journeyData: journeyData,
                     signature: canvas.toDataURL(),
@@ -804,6 +823,8 @@
             document.getElementById('driverPhone').value = data.driverPhone || '';
             document.getElementById('carType').value = data.carType || '';
             document.getElementById('carNumber').value = data.carNumber || '';
+            document.getElementById('useReadingKm').value = data.useReadingKm || '';
+            document.getElementById('useClosingTime').value = data.useClosingTime || '';
             document.getElementById('remarks').value = data.remarks || '';
             
             // Restore journey data
@@ -868,6 +889,8 @@
                 const driverPhone = document.getElementById('driverPhone').value;
                 const carType = document.getElementById('carType').value;
                 const carNumber = document.getElementById('carNumber').value;
+                const useReadingKm = document.getElementById('useReadingKm').value;
+                const useClosingTime = document.getElementById('useClosingTime').value;
                 const remarks = document.getElementById('remarks').value;
                 
                 // Collect journey data
@@ -884,18 +907,17 @@
                     });
                 });
                 
-                // Calculate total
+                // Calculate total - include all values (even 0 or negative)
                 let totalKm = 0;
                 journeyData.forEach(day => {
                     const start = parseFloat(day.startKm) || 0;
                     const end = parseFloat(day.endKm) || 0;
-                    if (end > start) {
-                        totalKm += (end - start);
-                    }
+                    totalKm += (end - start);
                 });
                 
-                // Get signature
-                const signatureData = canvas.toDataURL();
+                // Get signature - ensure it's not empty
+                const signatureData = canvas.toDataURL('image/png');
+                const hasSignature = signatureData && signatureData !== 'data:,' && !isCanvasBlank(canvas);
                 
                 // Determine pagination
                 const firstPageRows = journeyData.slice(0, 4);
@@ -912,8 +934,10 @@
                 // Create first page
                 const firstPage = await createPDFPage(
                     bookingId, displayDate, custName, custPhone, custAddress,
-                    driverName, driverPhone, carType, carNumber, remarks,
-                    firstPageRows, secondPageRows.length === 0 ? totalKm : null, signatureData
+                    driverName, driverPhone, carType, carNumber, 
+                    useReadingKm, useClosingTime, remarks,
+                    firstPageRows, secondPageRows.length === 0 ? totalKm : null, 
+                    hasSignature ? signatureData : null
                 );
                 
                 const canvas1 = await html2canvas(firstPage, {
@@ -921,7 +945,8 @@
                     height: 990,
                     scale: 2,
                     useCORS: true,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    logging: false
                 });
                 
                 const imgData1 = canvas1.toDataURL('image/jpeg', 0.98);
@@ -931,8 +956,9 @@
                 if (secondPageRows.length > 0) {
                     const secondPage = await createPDFPage(
                         bookingId, displayDate, custName, custPhone, custAddress,
-                        driverName, driverPhone, carType, carNumber, remarks,
-                        secondPageRows, totalKm, signatureData, true
+                        driverName, driverPhone, carType, carNumber,
+                        useReadingKm, useClosingTime, remarks,
+                        secondPageRows, totalKm, hasSignature ? signatureData : null, true
                     );
                     
                     const canvas2 = await html2canvas(secondPage, {
@@ -940,12 +966,15 @@
                         height: 990,
                         scale: 2,
                         useCORS: true,
-                        backgroundColor: '#ffffff'
+                        backgroundColor: '#ffffff',
+                        logging: false
                     });
                     
                     const imgData2 = canvas2.toDataURL('image/jpeg', 0.98);
                     pdf.addPage([1600, 990], 'landscape');
                     pdf.addImage(imgData2, 'JPEG', 0, 0, 1600, 990);
+                    
+                    document.body.removeChild(secondPage);
                 }
                 
                 // Save PDF
@@ -953,9 +982,6 @@
                 
                 // Clean up
                 document.body.removeChild(firstPage);
-                if (secondPageRows.length > 0) {
-                    document.body.removeChild(document.querySelector('.pdf-page:last-child'));
-                }
             } catch (error) {
                 console.error('PDF generation error:', error);
                 alert('Error generating PDF. Please try again.');
@@ -966,8 +992,17 @@
             }
         }
 
+        // Check if canvas is blank
+        function isCanvasBlank(canvas) {
+            const blank = document.createElement('canvas');
+            blank.width = canvas.width;
+            blank.height = canvas.height;
+            return canvas.toDataURL() === blank.toDataURL();
+        }
+
         async function createPDFPage(bookingId, displayDate, custName, custPhone, custAddress, 
-                               driverName, driverPhone, carType, carNumber, remarks,
+                               driverName, driverPhone, carType, carNumber,
+                               useReadingKm, useClosingTime, remarks,
                                journeyRows, totalKm, signatureData, isSecondPage = false) {
             
             return new Promise((resolve) => {
@@ -996,6 +1031,19 @@
                         hour12: true
                     }).toUpperCase();
                 };
+
+                // Format time to 12-hour format
+                const formatTime = (time) => {
+                    if (!time) return '-';
+                    const [hours, minutes] = time.split(':');
+                    const date = new Date();
+                    date.setHours(parseInt(hours), parseInt(minutes));
+                    return date.toLocaleTimeString('en-IN', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                    }).toUpperCase();
+                };
                 
                 // Build journey table HTML
                 let journeyTableHTML = '';
@@ -1015,7 +1063,7 @@
                 });
                 
                 page.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; margin-bottom: 35px; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 25px 35px; background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; margin-bottom: 30px; border-radius: 10px;">
                         <div>
                             <h1 style="font-size: 2rem; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">
                                 📋 DUTY SLIP
@@ -1030,44 +1078,44 @@
                     </div>
                     
                     ${!isSecondPage ? `
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 35px 50px; margin-bottom: 35px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px 45px; margin-bottom: 30px;">
                         <div>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+                            <div style="font-size: 1.05rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
                                 👤 Customer Details
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Customer Name</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custName || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Customer Name</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custName || '-'}</div>
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Phone Number</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custPhone || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Phone Number</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custPhone || '-'}</div>
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Address</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custAddress || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Address</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${custAddress || '-'}</div>
                             </div>
                         </div>
                         
                         <div>
-                            <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+                            <div style="font-size: 1.05rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
                                 🚗 Driver & Vehicle Details
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Driver Name</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${driverName || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Driver Name</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${driverName || '-'}</div>
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Driver Phone</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${driverPhone || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Driver Phone</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${driverPhone || '-'}</div>
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Car Type</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${carType || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Car Type</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${carType || '-'}</div>
                             </div>
-                            <div style="margin-bottom: 15px;">
-                                <label style="font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Car Number</label>
-                                <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${carNumber || '-'}</div>
+                            <div style="margin-bottom: 14px;">
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Car Number</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${carNumber || '-'}</div>
                             </div>
                         </div>
                     </div>
@@ -1077,18 +1125,18 @@
                     </div>
                     `}
                     
-                    <div style="margin-bottom: 30px;">
-                        <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px;">
+                    <div style="margin-bottom: 25px;">
+                        <div style="font-size: 1.05rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
                             🗺️ Journey Details ${isSecondPage ? '(Continued)' : ''}
                         </div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.92rem;">
                             <thead>
                                 <tr style="background: #f9fafb;">
-                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase; width: 80px;">Day</th>
-                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">Start Time</th>
-                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">End Time</th>
-                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">Starting KM</th>
-                                    <th style="padding: 14px 12px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.9rem; text-transform: uppercase;">Ending KM</th>
+                                    <th style="padding: 13px 11px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.85rem; text-transform: uppercase; width: 75px;">Day</th>
+                                    <th style="padding: 13px 11px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.85rem; text-transform: uppercase;">Start Time</th>
+                                    <th style="padding: 13px 11px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.85rem; text-transform: uppercase;">End Time</th>
+                                    <th style="padding: 13px 11px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.85rem; text-transform: uppercase;">Starting KM</th>
+                                    <th style="padding: 13px 11px; text-align: left; font-weight: 700; color: #1f2937; border-bottom: 2.5px solid #e5e7eb; font-size: 0.85rem; text-transform: uppercase;">Ending KM</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1096,29 +1144,49 @@
                             </tbody>
                         </table>
                         ${totalKm !== null ? `
-                            <div style="font-weight: 700; color: #2563eb; text-align: right; margin-top: 18px; font-size: 1.4rem; padding: 12px 15px; background: #eff6ff; border-radius: 8px; display: inline-block; float: right;">
+                            <div style="font-weight: 700; color: #2563eb; text-align: right; margin-top: 16px; font-size: 1.35rem; padding: 11px 14px; background: #eff6ff; border-radius: 8px; display: inline-block; float: right;">
                                 Total KM: ${totalKm.toFixed(2)}
                             </div>
                         ` : ''}
                     </div>
                     
+                    ${!isSecondPage && (useReadingKm || useClosingTime) ? `
+                    <div style="margin-top: 30px; clear: both;">
+                        <div style="font-size: 1.05rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                            📋 Customer Uses
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Reading KM</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${useReadingKm || '-'}</div>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #6b7280; display: block; margin-bottom: 5px;">Closing Time</label>
+                                <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 8px 0; border-bottom: 1px solid #e5e7eb;">${formatTime(useClosingTime)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    
                     ${!isSecondPage && remarks ? `
-                    <div style="margin-top: 35px; clear: both;">
-                        <div style="font-size: 1.1rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <div style="margin-top: 30px; clear: both;">
+                        <div style="font-size: 1.05rem; font-weight: 700; color: #2563eb; text-transform: uppercase; border-bottom: 2.5px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;">
                             💬 Remarks
                         </div>
-                        <div style="font-size: 1.05rem; font-weight: 500; color: #1f2937; padding: 12px 0; border-bottom: 1px solid #e5e7eb;">${remarks}</div>
+                        <div style="font-size: 1rem; font-weight: 500; color: #1f2937; padding: 11px 0; border-bottom: 1px solid #e5e7eb;">${remarks}</div>
                     </div>
                     ` : ''}
                     
                     ${(totalKm !== null || isSecondPage) ? `
-                    <div style="margin-top: 35px; padding-top: 25px; border-top: 2.5px solid #e5e7eb; clear: both;">
-                        <div style="font-size: 0.95rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 12px;">
+                    <div style="margin-top: 30px; padding-top: 23px; border-top: 2.5px solid #e5e7eb; clear: both;">
+                        <div style="font-size: 0.92rem; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 11px;">
                             ✍️ Customer Signature:
                         </div>
-                        ${signatureData && signatureData !== 'data:,' ? 
-                            `<img src="${signatureData}" style="max-width: 350px; max-height: 90px; border: 2px solid #e5e7eb; border-radius: 8px; padding: 12px; background: white;" alt="Signature">` : 
-                            '<div style="color: #9ca3af; font-style: italic; font-size: 1rem;">No signature provided</div>'
+                        ${signatureData ? 
+                            `<div style="border: 2px solid #e5e7eb; border-radius: 8px; padding: 14px; background: white; display: inline-block;">
+                                <img src="${signatureData}" style="max-width: 340px; max-height: 85px; display: block;" alt="Signature">
+                            </div>` : 
+                            '<div style="color: #9ca3af; font-style: italic; font-size: 0.98rem;">No signature provided</div>'
                         }
                     </div>
                     ` : ''}
@@ -1127,7 +1195,7 @@
                 document.body.appendChild(page);
                 
                 // Wait for fonts and images to load
-                setTimeout(() => resolve(page), 100);
+                setTimeout(() => resolve(page), 150);
             });
         }
     </script>
